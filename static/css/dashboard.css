@@ -1,0 +1,9 @@
+.page {
+    display: none;
+}
+.current {
+    display: block;
+}
+.f-white {
+    color: white;
+}
