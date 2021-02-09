@@ -64,7 +64,7 @@ let config = {
                 startTime = new Date().getTime();
                 startTime -= (1000 * 3600 * 24 * 30);
                 startTime = new Date(startTime).Format("yyyy-MM-dd");
-                axios.get("/api/speedLog.php", {
+                axios.get("/api/speedRangeLog.php", {
                     params : {
                         'start_time': startTime,
                         'end_time': endTime
@@ -202,8 +202,87 @@ let config = {
                 info : '系统中的所有测速记录查看页面',
                 pageTitle : '历史数据'
             },
-            callback : () => {
-
+            callback : (routes) => {
+                let page = 1;
+                if(routes.query.page != undefined) {
+                    page = routes.query.page;
+                }
+                $('#historyDataTable').bootstrapTable({
+                    url : '/api/speedLog.php',
+                    sidePagination: "true",
+                    uniqueId: "id",
+                    pageSize: 25,
+                    pageNumber: page,
+                    pageList: [10, 25, 50, 100],
+                    showRefresh: true,
+                    pagination: true,
+                    buttonsToolbar: '#tableToolArea',
+                    sidePagination: "server",
+                    columns: [
+                        {
+                            field: 'id',
+                            title: 'id'
+                        },
+                        {
+                            field: 'unumber',
+                            title: '学号'
+                        },
+                        {
+                            field : 'name',
+                            title : '姓名'
+                        },
+                        {
+                            field: 'ip',
+                            title: 'IP'
+                        },
+                        {
+                            field: 'dl',
+                            title: '下载速度Mbps'
+                        },
+                        {
+                            field: 'ul',
+                            title: '上传速度Mbps'
+                        },
+                        {
+                            field: 'ping',
+                            title: '延迟 ms'
+                        },
+                        {
+                            field: 'jitter',
+                            title: '抖动 ms'
+                        },
+                        {
+                            field : 'time',
+                            title : '测速时间'
+                        }
+                    ],
+                    queryParams : (params) => {
+                        let $allRadios = $('input[type=radio][name=searchMethod]');
+                        let value = 'unumber';
+                        for(let i = 0; i < $allRadios.length; i ++) {
+                            if($allRadios[i].checked) {
+                                value = $allRadios[i].value;
+                            }
+                        }
+                        let searchData =  $("#searchInput").val();
+                        let newParams = {
+                            all : '',
+                            start : params.offset,
+                            offset : params.limit,
+                            search_data : searchData,
+                            search_field : value
+                        };
+                        if(searchData.length) {
+                            newParams['search'] = '';
+                        }
+                        return newParams;
+                    }
+                });
+                let butt = document.querySelector('#searchButt');
+                butt.addEventListener('click', (e) => {
+                    $('#tableToolArea button[name=refresh]').click();
+                    e.preventDefault();
+                });
             }
         }
     ]

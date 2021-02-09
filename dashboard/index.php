@@ -26,7 +26,7 @@ $conn->query("set time_zone = '+8:00'");
     <link rel="stylesheet" href="/static/css/dashboard.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <link rel="stylesheet" href="/static/css/skin-blue.min.css">
-    <script src="/static/js/chart.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css">
 </head>
 
 <body class="skin-blue hold-transition sidebar-mini">
@@ -40,7 +40,13 @@ $conn->query("set time_zone = '+8:00'");
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
-
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <a href="/"><i class="fa fa-home"></i>&nbsp;返回主页</a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
         </header>
         <aside class="main-sidebar">
@@ -223,14 +229,51 @@ $conn->query("set time_zone = '+8:00'");
                 </div>
                 <div class="page" data-hash="/history">
                     <div class="row">
-                    
+                        <form role="form" class="col-lg-6 form-inline">
+                            <div class="form-group">
+                                <label for="searchInput">搜索</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="模糊搜索">
+                            </div>
+                            <div class="form-group">
+                                <label for="">搜索类型</label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="searchMethod" id="optionsRadios1" value="ip" checked> IP
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="searchMethod" id="optionsRadios2" value="unumber"> 学号
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="searchMethod" id="optionsRadios3" value="time"> 时间
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="searchMethod" id="optionsRadios" value="name"> 姓名
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary" id="searchButt">搜索</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row history-area">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">测速历史记录</h3>
+                                </div>
+                                <div class="box-body">
+                                    <table id="historyDataTable"></table>
+                                </div>
+                                <div class="box-footer" id="tableToolArea"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="main-footer">
-            <strong>Copyright &copy; 2021-2021 essay.</strong>
+            <strong>Copyright &copy; 2021-2021 BUCT.</strong>
             All rights reserved.
+            <strong>Powered by <a href="https://github.com/essayZW/speedtest" target="_blank">essay</a></strong>
         </div>
     </div>
 
@@ -255,6 +298,8 @@ $conn->query("set time_zone = '+8:00'");
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
+    <script src="/static//js/chart.min.js"></script>
     <script src="/static/js/adminlte.min.js"></script>
     <script src="/static/js/router.js"></script>
     <script src="/static/js/dashboard.js"></script>
