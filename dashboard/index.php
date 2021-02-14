@@ -5,13 +5,6 @@ session_start();
 if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
     header("Location: /dashboard/login.php");
 }
-
-include_once("../results/telemetry_settings.php");
-$conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
-if (!$conn) {
-    die("error");
-}
-$conn->query("set time_zone = '+8:00'");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,10 +16,11 @@ $conn->query("set time_zone = '+8:00'");
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/css/AdminLTE.min.css">
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
-    <link rel="stylesheet" href="/static/css/dashboard.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <link rel="stylesheet" href="/static/css/skin-blue.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/static/css/daterangepicker.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
 
 <body class="skin-blue hold-transition sidebar-mini">
@@ -61,12 +55,24 @@ $conn->query("set time_zone = '+8:00'");
                     </div>
                 </div>
                 <ul class="sidebar-menu tree" data-widget="tree">
-                    <li class="header">菜单</li>
+                    <li class="header">功能菜单</li>
                     <li class="active">
                         <a href="#/index"><i class="fa fa-table"></i><span>数据概览</span></a>
                     </li>
                     <li>
                         <a href="#/history"><i class="fa fa-sticky-note-o"></i><span>测速记录</span></a>
+                    </li>
+                    <li class="treeview">
+                        <a href="javascript:;">
+                            <i class="fa fa-area-chart"></i>
+                            <span>数据图表</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="#/chart/useinfo"><i class="fa fa-users"></i>测速人数与次数</a></li>
+                        </ul>
                     </li>
                 </ul>
             </section>
@@ -268,6 +274,73 @@ $conn->query("set time_zone = '+8:00'");
                         </div>
                     </div>
                 </div>
+                <div class="page" data-hash="/chart/useinfo">
+                    <div class="row">
+                        <form role="form" class="col-lg-12 form-inline">
+                            <div class="form-group">
+                                <label>数据时间范围:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right date-range-picker" id="useinfoDatePicker">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>时间步长:</label>
+                                <select class="form-control" id="useinfoStepSelector">
+                                    <option value="hour">一小时</option>
+                                    <option value="day" selected>一天</option>
+                                    <option value="week">一周</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" id="useinfoChartButt">确认</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <div class="small-box bg-green">
+                                <div class="inner">
+                                    <h3 id="useinfoUserNum">0</h3>
+                                    <p>测速人数</p>
+                                </div>
+                                <div class="icon">
+                                    <ion-icon class="f-white" name="person-outline"></ion-icon>
+                                </div>
+                                <a href="javascript:;" class="small-box-footer"></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="small-box bg-green">
+                                <div class="inner">
+                                    <h3 id="useinfoTestNum">0</h3>
+                                    <p>测速次数</p>
+                                </div>
+                                <div class="icon">
+                                    <ion-icon class="f-white" name="speedometer-outline"></ion-icon>
+                                </div>
+                                <a href="javascript:;" class="small-box-footer"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <i class="fa fa-area-chart"></i>统计图
+                                </div>
+                                <div class="box-body">
+                                    <canvas id="useinfoChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page" data-hash="/chart/uldlinfo">
+                    <div class="row">xss</div>
+                </div>
             </div>
         </div>
         <div class="main-footer">
@@ -299,13 +372,12 @@ $conn->query("set time_zone = '+8:00'");
     <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
-    <script src="/static//js/chart.min.js"></script>
+    <script src="/static/js/chart.min.js"></script>
     <script src="/static/js/adminlte.min.js"></script>
+    <script src="/static/js//moment.min.js"></script>
+    <script src="/static/js/daterangepicker.js"></script>
     <script src="/static/js/router.js"></script>
     <script src="/static/js/dashboard.js"></script>
 </body>
 
 </html>
-<?php
-$conn->close();
-?>

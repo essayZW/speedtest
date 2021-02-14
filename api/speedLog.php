@@ -1,4 +1,29 @@
 <?php
+/**
+ * param: all
+ * description: 模式决定，返回多条数据
+ * 
+ * param: start
+ * description: 分页开始的下标
+ * 
+ * param: offset
+ * description: 查询的数量
+ * 
+ * param: search
+ * description: 是否开启搜索
+ * 
+ * param: search_field
+ * description: 搜索的目标字段，只支持time, unumber, ip, name
+ * 
+ * param: search_data
+ * description: 搜索的字段内容，模糊搜索
+ * 
+ * param: single
+ * description: 模式决定，返回单个数据
+ * 
+ * param: id
+ * description: 返回单个数据时的数据ID
+ */
 include_once("./init.php");
 
 if(isset($_GET['all'])) {

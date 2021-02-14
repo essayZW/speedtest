@@ -1,4 +1,20 @@
 <?php
+/**
+ * param: start_time
+ * description: 查询的记录开始时间
+ * 
+ * param : end_time
+ * description: 查询的记录结束时间
+ * 
+ * param: average
+ * description: 返回数据是否包含从start_time 到 end_time这一段时间的ul, dl, ping, jitter平均值
+ * 
+ * param: step
+ * description: 数据分段的步长，支持小时，天，周，月
+ * 
+ * param: withdata
+ * description: 是否在返回数据中携带具体的测速记录数据
+ */
 include_once("./init.php");
 try {
     $startTime = get($_GET, 'start_time');
@@ -17,7 +33,6 @@ catch(Exception $e) {
     ]));
 }
 $reponseData = [];
-
 if(isset($_GET['average'])) {
     $p = $conn->prepare("SELECT avg(ul), avg(dl), avg(ping), avg(jitter) FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ?");
     $p->bind_param("ss", $startTime, $endTime);
@@ -38,9 +53,23 @@ if(isset($_GET['average'])) {
     ];
 }
 
-$step = 3600 * 24;
-if(isset($_GET['hour_step'])) {
-    $step = 3600;
+$stepFlag = get($_GET, 'step');
+switch ($stepFlag) {
+    case 'hour':
+        $step = 3600;
+        break;
+    case 'day':
+        $step = 3600 * 24;
+        break;
+    case 'week':
+        $step = 3600 * 24 * 7;
+        break;
+    case 'month':
+        $step = 3600 * 24 * 31;
+        break;
+    default:
+        $step = 3600 * 24;
+        break;
 }
 $p = $conn->prepare("SELECT ul, dl, ping, jitter, unumber, `timestamp` FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ?");
 $p->bind_param('ss', $startTime, $endTime);

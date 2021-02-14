@@ -278,11 +278,28 @@ let config = {
                         return newParams;
                     }
                 });
-                let butt = document.querySelector('#searchButt');
-                butt.addEventListener('click', (e) => {
-                    $('#tableToolArea button[name=refresh]').click();
-                    e.preventDefault();
-                });
+            }
+        },
+        {
+            path : '/chart/useinfo',
+            name : 'userAndTestChart',
+            pageHeader : {
+                info : '使用人数以及测速次数详情统计图表',
+                title : '使用情况统计图',
+                pageTitle : '使用详情图表'
+            },
+            callback : () => {
+                let butt = document.querySelector("#useinfoChartButt");
+                butt.click();
+            }
+        },
+        {
+            path : '/chart/uldlinfo',
+            name : 'uldlChart',
+            pageHeader : {
+                info : '下载速度和上传速度测速详情统计表',
+                title : '测速速度统计表',
+                pageTitle : '测速速度统计表'
             }
         }
     ]
@@ -306,9 +323,109 @@ router.afterEach(function (transition) {
     }
 });
 router.beforeEach(function (transition) {
+    clearCharts();
+    transition.next();
+});
+function clearCharts() {
     for(let i = 0; i < window.charts.length; i ++) {
         window.charts[i].destroy();
     }
     window.charts = [];
-    transition.next();
+}
+
+$('.date-range-picker').daterangepicker({
+    timePicker : true,
+    timePickerIncrement : 60,
+    locale : {
+        format : 'YYYY-MM-DD HH:00'
+    },
+    timePicker24Hour : true,
+    ranges : {
+        '今天' : [
+            moment().startOf('day'),
+            moment().endOf('day')
+        ],
+        '最近一周' : [
+            moment().subtract(6, 'days'),
+            moment().endOf('day')
+        ],
+        '最近一月' : [
+            moment().subtract(31, 'days'),
+            moment().endOf('day')
+        ],
+        '本周' : [
+            moment().startOf('week'),
+            moment().endOf('week')
+        ],
+        '本月' : [
+            moment().startOf('month'),
+            moment().endOf('month')
+        ]
+    },
+    showCustomRangeLabel: false,
+    alwaysShowCalendars: true
+});
+$('.date-range-picker').data('daterangepicker').setStartDate(moment().subtract(6, 'days'));
+$('.date-range-picker').data('daterangepicker').setEndDate(moment().endOf('day'))
+
+let butt = document.querySelector('#searchButt');
+butt.addEventListener('click', (e) => {
+    $('#tableToolArea button[name=refresh]').click();
+    e.preventDefault();
+});
+
+butt = document.querySelector("#useinfoChartButt");
+butt.addEventListener('click', (e) => {
+    let start = $('#useinfoDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+    let end = $('#useinfoDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+    let step = document.querySelector('#useinfoStepSelector').selectedOptions[0].value;
+    axios.get('/api/speedRangeLog.php', {
+        params : {
+            start_time : start,
+            end_time : end,
+            step : step
+        }
+    }).then((rep) => {
+        clearCharts();
+        let repData = rep.data;
+        document.querySelector('#useinfoUserNum').innerHTML = repData.userNum;
+        document.querySelector('#useinfoTestNum').innerHTML = repData.testNum;
+        let chartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: '测速人数',
+                    data: [],
+                    borderColor: 'red',
+                },
+                {
+                    label: '测速次数',
+                    data: [],
+                    borderColor: '#0ae',
+                }
+            ]    
+        };
+        for(let index = 0; index < repData.data.length; index ++) {
+            if(step == 'week') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd +7'));
+            }
+            else if(step == 'hour') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
+            }
+            else {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
+            }
+            chartData.datasets[0].data.push(repData.data[index].userNum);
+            chartData.datasets[1].data.push(repData.data[index].testNum);
+        }
+        let canvas = document.querySelector('#useinfoChart').getContext('2d');
+        window.charts.push(new Chart(canvas, {
+            type : 'line',
+            data : chartData
+        }));
+    }).catch((error) => {
+        console.error(error);
+        alertModal('加载失败', '统计图数据加载失败');
+    });
+    e.preventDefault();
 });
