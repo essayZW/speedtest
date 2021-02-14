@@ -300,6 +300,23 @@ let config = {
                 info : '下载速度和上传速度测速详情统计表',
                 title : '测速速度统计表',
                 pageTitle : '测速速度统计表'
+            },
+            callback : () => {
+                let butt = document.querySelector("#uldlinfoChartButt");
+                butt.click();
+            }
+        },
+        {
+            path : '/chart/pjinfo',
+            name : 'pjChart',
+            pageHeader : {
+                info : 'ping和jitter测速详情统计表',
+                title : '测速延迟统计表',
+                pageTitle : '测速延迟统计表'
+            },
+            callback : () => {
+                let butt = document.querySelector("#pjinfoChartButt");
+                butt.click();
             }
         }
     ]
@@ -365,8 +382,12 @@ $('.date-range-picker').daterangepicker({
     showCustomRangeLabel: false,
     alwaysShowCalendars: true
 });
-$('.date-range-picker').data('daterangepicker').setStartDate(moment().subtract(6, 'days'));
-$('.date-range-picker').data('daterangepicker').setEndDate(moment().endOf('day'))
+$allDateRangePicker = $('.date-range-picker');
+for(let i = 0; i < $allDateRangePicker.length; i ++) {
+    $now = $($allDateRangePicker[i]);
+    $now.data('daterangepicker').setStartDate(moment().subtract(6, 'days'));
+    $now.data('daterangepicker').setEndDate(moment().endOf('day'))
+}
 
 let butt = document.querySelector('#searchButt');
 butt.addEventListener('click', (e) => {
@@ -419,6 +440,118 @@ butt.addEventListener('click', (e) => {
             chartData.datasets[1].data.push(repData.data[index].testNum);
         }
         let canvas = document.querySelector('#useinfoChart').getContext('2d');
+        window.charts.push(new Chart(canvas, {
+            type : 'line',
+            data : chartData
+        }));
+    }).catch((error) => {
+        console.error(error);
+        alertModal('加载失败', '统计图数据加载失败');
+    });
+    e.preventDefault();
+});
+
+butt = document.querySelector("#uldlinfoChartButt");
+butt.addEventListener('click', (e) => {
+    let start = $('#uldlinfoDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+    let end = $('#uldlinfoDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+    let step = document.querySelector('#uldlinfoStepSelector').selectedOptions[0].value;
+    axios.get('/api/speedRangeLog.php', {
+        params : {
+            start_time : start,
+            end_time : end,
+            step : step
+        }
+    }).then((rep) => {
+        clearCharts();
+        let repData = rep.data;
+        document.querySelector('#uldlinfoUserNum').innerHTML = repData.userNum;
+        document.querySelector('#uldlinfoTestNum').innerHTML = repData.testNum;
+        let chartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: '平均下载速度 Mbps',
+                    data: [],
+                    borderColor: 'red',
+                },
+                {
+                    label: '平均上传速度 Mbps',
+                    data: [],
+                    borderColor: '#0ae',
+                }
+            ]    
+        };
+        for(let index = 0; index < repData.data.length; index ++) {
+            if(step == 'week') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd +7'));
+            }
+            else if(step == 'hour') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
+            }
+            else {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
+            }
+            chartData.datasets[0].data.push(repData.data[index].avg.dl);
+            chartData.datasets[1].data.push(repData.data[index].avg.ul);
+        }
+        let canvas = document.querySelector('#uldlinfoChart').getContext('2d');
+        window.charts.push(new Chart(canvas, {
+            type : 'line',
+            data : chartData
+        }));
+    }).catch((error) => {
+        console.error(error);
+        alertModal('加载失败', '统计图数据加载失败');
+    });
+    e.preventDefault();
+});
+
+butt = document.querySelector("#pjinfoChartButt");
+butt.addEventListener('click', (e) => {
+    let start = $('#pjinfoDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+    let end = $('#pjinfoDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+    let step = document.querySelector('#pjinfoStepSelector').selectedOptions[0].value;
+    axios.get('/api/speedRangeLog.php', {
+        params : {
+            start_time : start,
+            end_time : end,
+            step : step
+        }
+    }).then((rep) => {
+        clearCharts();
+        let repData = rep.data;
+        document.querySelector('#pjinfoUserNum').innerHTML = repData.userNum;
+        document.querySelector('#pjinfoTestNum').innerHTML = repData.testNum;
+        let chartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: 'ping ms',
+                    data: [],
+                    borderColor: 'red',
+                },
+                {
+                    label: 'jitter ms',
+                    data: [],
+                    borderColor: '#0ae',
+                }
+            ]    
+        };
+        for(let index = 0; index < repData.data.length; index ++) {
+            if(step == 'week') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd +7'));
+            }
+            else if(step == 'hour') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
+            }
+            else {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
+            }
+            chartData.datasets[0].data.push(repData.data[index].avg.ping);
+            chartData.datasets[1].data.push(repData.data[index].avg.jitter);
+        }
+        let canvas = document.querySelector('#pjinfoChart').getContext('2d');
         window.charts.push(new Chart(canvas, {
             type : 'line',
             data : chartData

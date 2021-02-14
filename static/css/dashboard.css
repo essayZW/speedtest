@@ -16,7 +16,10 @@
 .date-range-picker {
     min-width: 250px;
 }
-.page[data-hash="/chart/useinfo"] > .row:nth-child(2) {
+.page[data-hash="/chart/useinfo"] > .row:nth-child(2), 
+.page[data-hash="/chart/uldlinfo"] > .row:nth-child(2),
+.page[data-hash="/chart/pjinfo"] > .row:nth-child(2)
+{
     margin-top: 40px;    
     margin-bottom: 20px;
 }
