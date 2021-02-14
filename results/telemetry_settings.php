@@ -9,9 +9,9 @@ $redact_ip_addresses=false; //if set to true, IP addresses will be redacted from
 $Sqlite_db_file = "../../speedtest_telemetry.sql";
 
 // Mysql settings
-$MySql_username="root";
-$MySql_password="beihai";
-$MySql_hostname="172.17.0.2";
+$MySql_username="";
+$MySql_password="";
+$MySql_hostname="";
 $MySql_databasename="speedtest";
 $MySql_port="3306";
 

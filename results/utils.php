@@ -11,7 +11,6 @@ class Session {
 
     static public function get($key) {
         self::start();
-        return '2018040532';
         if(!isset($_SESSION[$key])) return '';
         return $_SESSION[$key];
     }
