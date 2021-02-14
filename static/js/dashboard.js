@@ -433,6 +433,9 @@ butt.addEventListener('click', (e) => {
             else if(step == 'hour') {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
             }
+            else if(step == 'single') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
+            }
             else {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
             }
@@ -489,6 +492,9 @@ butt.addEventListener('click', (e) => {
             else if(step == 'hour') {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
             }
+            else if(step == 'single') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
+            }
             else {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
             }
@@ -544,6 +550,9 @@ butt.addEventListener('click', (e) => {
             }
             else if(step == 'hour') {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
+            }
+            else if(step == 'single') {
+                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
             }
             else {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
