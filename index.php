@@ -12,7 +12,8 @@ require_once('./results/validation.php');
 <script>
 //INITIALIZE SPEEDTEST
 var s=new Speedtest(); //create speedtest object
-<?php if(getenv("TELEMETRY")=="true"){ ?>
+// for dev
+<?php if(getenv("TELEMETRY")!=="true"){ ?>
 s.setParameter("telemetry_level","basic");
 <?php } ?>
 <?php if(getenv("DISABLE_IPINFO")=="true"){ ?>

@@ -1,0 +1,25 @@
+.page {
+    display: none;
+}
+.current {
+    display: block;
+}
+.f-white {
+    color: white;
+}
+.history-area {
+    margin-top: 20px;
+}
+.form-group {
+    margin: 0px 10px 0px 0px;
+}
+.date-range-picker {
+    min-width: 250px;
+}
+.page[data-hash="/chart/useinfo"] > .row:nth-child(2), 
+.page[data-hash="/chart/uldlinfo"] > .row:nth-child(2),
+.page[data-hash="/chart/pjinfo"] > .row:nth-child(2)
+{
+    margin-top: 40px;    
+    margin-bottom: 20px;
+}
