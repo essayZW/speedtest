@@ -49,6 +49,7 @@
         if(!$conn) {
             die('<h2>数据查询失败</h2>');
         }
+        $conn->query("set time_zone = '+8:00'");
         $stmp = $conn->prepare('SELECT id,timestamp,ip,dl,ul,ping,jitter FROM speedtest_infos WHERE unumber=?');
         $stmp->bind_param('s', $__USER_NUMBER__);
         $stmp->execute();
