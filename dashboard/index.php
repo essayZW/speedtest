@@ -294,6 +294,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
+                                    <option value="single">单个</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -358,6 +359,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
+                                    <option value="single">单个</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -422,6 +424,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
+                                    <option value="single">单个</option>
                                 </select>
                             </div>
                             <div class="form-group">

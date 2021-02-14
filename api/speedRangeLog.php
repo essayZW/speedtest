@@ -67,6 +67,9 @@ switch ($stepFlag) {
     case 'month':
         $step = 3600 * 24 * 31;
         break;
+    case 'single':
+        $step = -1;
+        break;
     default:
         $step = 3600 * 24;
         break;
@@ -82,10 +85,29 @@ $end = strtotime($endTime);
 $repData = [];
 $index = 0;
 $allUserList = [];
-while($p->fetch()) {
-    $timeNowRow = strtotime($timestamp);
-    $allUserList[$unumber] = true;
-    while($timeNowRow >= $currentTime + $step) {
+if($step != -1) {
+    while($p->fetch()) {
+        $timeNowRow = strtotime($timestamp);
+        $allUserList[$unumber] = true;
+        while($timeNowRow >= $currentTime + $step) {
+            if(!isset($repData[$index])) {
+                $repData[$index] = [
+                    "testNum" => 0,
+                    "userNum" => 0,
+                    "avg" => [
+                        "dl" => 0,
+                        'ul' => 0,
+                        "ping" => 0,
+                        "jitter" => 0
+                    ],
+                    "data" => [],
+                    "startTime" => $currentTime,
+                    "endTime" => $currentTime + $step
+                ];
+            }
+            $currentTime += $step;
+            $index ++;
+        }
         if(!isset($repData[$index])) {
             $repData[$index] = [
                 "testNum" => 0,
@@ -101,52 +123,65 @@ while($p->fetch()) {
                 "endTime" => $currentTime + $step
             ];
         }
+        $repData[$index]['testNum'] ++;
+        $repData[$index]['data'][] = [
+            'dl' => $dl,
+            'ul' => $ul,
+            'ping' => $ping,
+            'jitter' => $jitter,
+            'unumber' => $unumber,
+            'timestamp' => $timestamp
+        ];
+    }
+    while ($currentTime < $end) {
+        if (!isset($repData[$index])) {
+            $repData[$index] = [
+                "testNum" => 0,
+                "userNum" => 0,
+                "avg" => [
+                    "dl" => 0,
+                    'ul' => 0,
+                    "ping" => 0,
+                    "jitter" => 0
+                ],
+                "data" => [],
+                "startTime" => $currentTime,
+                "endTime" => $currentTime + $step
+            ];
+        }
         $currentTime += $step;
+        $index++;
+    }
+}
+else {
+    while($p->fetch()) {
+        $allUserList[$unumber] = true;
+        if(!isset($repData[$index])) {
+            $repData[$index] = [
+                "testNum" => 0,
+                "userNum" => 0,
+                "avg" => [
+                    "dl" => 0,
+                    'ul' => 0,
+                    "ping" => 0,
+                    "jitter" => 0
+                ],
+                "data" => [],
+                "startTime" => strtotime($timestamp),
+                "endTime" => strtotime($timestamp)
+            ];
+        }
+        $repData[$index]['testNum'] ++;
+        $repData[$index]['data'][] = [
+            'dl' => $dl,
+            'ul' => $ul,
+            'ping' => $ping,
+            'jitter' => $jitter,
+            'unumber' => $unumber,
+            'timestamp' => $timestamp
+        ];
         $index ++;
     }
-    if(!isset($repData[$index])) {
-        $repData[$index] = [
-            "testNum" => 0,
-            "userNum" => 0,
-            "avg" => [
-                "dl" => 0,
-                'ul' => 0,
-                "ping" => 0,
-                "jitter" => 0
-            ],
-            "data" => [],
-            "startTime" => $currentTime,
-            "endTime" => $currentTime + $step
-        ];
-    }
-    $repData[$index]['testNum'] ++;
-    $repData[$index]['data'][] = [
-        'dl' => $dl,
-        'ul' => $ul,
-        'ping' => $ping,
-        'jitter' => $jitter,
-        'unumber' => $unumber,
-        'timestamp' => $timestamp
-    ];
-}
-while ($currentTime < $end) {
-    if (!isset($repData[$index])) {
-        $repData[$index] = [
-            "testNum" => 0,
-            "userNum" => 0,
-            "avg" => [
-                "dl" => 0,
-                'ul' => 0,
-                "ping" => 0,
-                "jitter" => 0
-            ],
-            "data" => [],
-            "startTime" => $currentTime,
-            "endTime" => $currentTime + $step
-        ];
-    }
-    $currentTime += $step;
-    $index++;
 }
 foreach($repData as $key => $value) {
     $userList = [];
