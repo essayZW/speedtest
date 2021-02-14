@@ -1,6 +1,6 @@
 <?php
-require_once('/var/www/html/results/utils.php');
-require_once('/var/www/html/results/telemetry_settings.php');
+require_once(__DIR__ . '/utils.php');
+require_once(__DIR__ . '/../results/telemetry_settings.php');
 //if(!PermissionValidator::check()) {
     //if(!isset($_GET['ticket'])) {
         //// 未登录，前往统一认证界面

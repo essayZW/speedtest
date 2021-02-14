@@ -25,7 +25,7 @@ $p->bind_result($testNums, $adl, $aul, $aping, $ajitter);
 $p->fetch();
 $p->close();
 
-$p = $conn->prepare("SELECT count(*) FROM (SELECT count(*) FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ?) subquery");
+$p = $conn->prepare("SELECT count(*) FROM (SELECT * FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ?) subquery");
 $p->bind_param("ss", $startTime, $endTime);
 $p->execute();
 $p->store_result();
