@@ -2,9 +2,10 @@
 /**
  * 初始化数据库连接以及登陆判断
  */
+//error_reporting(-1);
+//ini_set('display_errors', 1);
 include_once("../results/telemetry_settings.php");
-// error_reporting(-1);
-// ini_set('display_errors', 1);
+date_default_timezone_set('PRC');
 header("Content-Type: application/json");
 session_start();
 if(!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
