@@ -291,10 +291,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="form-group">
                                 <label>时间步长:</label>
                                 <select class="form-control" id="useinfoStepSelector">
+                                    <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
-                                    <option value="single">一条</option>
+                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -356,10 +357,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="form-group">
                                 <label>时间步长:</label>
                                 <select class="form-control" id="uldlinfoStepSelector">
+                                    <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
-                                    <option value="single">一条</option>
+                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -421,10 +423,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="form-group">
                                 <label>时间步长:</label>
                                 <select class="form-control" id="pjinfoStepSelector">
+                                    <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
-                                    <option value="single">一条</option>
+                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -471,6 +474,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                     </div>
                 </div>
+                <div class="page"></div>
             </div>
         </div>
         <div class="main-footer">

@@ -362,12 +362,12 @@ $('.date-range-picker').daterangepicker({
             moment().startOf('day'),
             moment().endOf('day')
         ],
-        '最近一周' : [
-            moment().subtract(6, 'days'),
+        '最近7天' : [
+            moment().startOf('day').subtract(6, 'days'),
             moment().endOf('day')
         ],
-        '最近一月' : [
-            moment().subtract(31, 'days'),
+        '最近31天' : [
+            moment().startOf('day').subtract(31, 'days'),
             moment().endOf('day')
         ],
         '本周' : [
@@ -385,7 +385,7 @@ $('.date-range-picker').daterangepicker({
 $allDateRangePicker = $('.date-range-picker');
 for(let i = 0; i < $allDateRangePicker.length; i ++) {
     $now = $($allDateRangePicker[i]);
-    $now.data('daterangepicker').setStartDate(moment().subtract(6, 'days'));
+    $now.data('daterangepicker').setStartDate(moment().startOf('day').subtract(6, 'days'));
     $now.data('daterangepicker').setEndDate(moment().endOf('day'))
 }
 
@@ -397,152 +397,127 @@ butt.addEventListener('click', (e) => {
 
 butt = document.querySelector("#useinfoChartButt");
 butt.addEventListener('click', (e) => {
-    let start = $('#useinfoDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
-    let end = $('#useinfoDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
-    let step = document.querySelector('#useinfoStepSelector').selectedOptions[0].value;
-    axios.get('/api/speedRangeLog.php', {
-        params : {
-            start_time : start,
-            end_time : end,
-            step : step
+    initLineChart(['userNum', 'testNum'], [
+        {
+            label: '测速人数',
+            data: [],
+            borderColor: 'red',
+        },
+        {
+            label: '测速次数',
+            data: [],
+            borderColor: '#0ae',
         }
-    }).then((rep) => {
-        clearCharts();
-        let repData = rep.data;
-        document.querySelector('#useinfoUserNum').innerHTML = repData.userNum;
-        document.querySelector('#useinfoTestNum').innerHTML = repData.testNum;
-        let chartData = {
-            labels: [],
-            datasets: [
-                {
-                    label: '测速人数',
-                    data: [],
-                    borderColor: 'red',
-                },
-                {
-                    label: '测速次数',
-                    data: [],
-                    borderColor: '#0ae',
-                }
-            ]    
-        };
-        for(let index = 0; index < repData.data.length; index ++) {
-            if(step == 'week') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd +7'));
-            }
-            else if(step == 'hour') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
-            }
-            else if(step == 'single') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
-            }
-            else {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
-            }
-            chartData.datasets[0].data.push(repData.data[index].userNum);
-            chartData.datasets[1].data.push(repData.data[index].testNum);
-        }
-        let canvas = document.querySelector('#useinfoChart').getContext('2d');
-        window.charts.push(new Chart(canvas, {
-            type : 'line',
-            data : chartData
-        }));
-    }).catch((error) => {
-        console.error(error);
-        alertModal('加载失败', '统计图数据加载失败');
-    });
+    ], 'use');
     e.preventDefault();
 });
 
 butt = document.querySelector("#uldlinfoChartButt");
 butt.addEventListener('click', (e) => {
-    let start = $('#uldlinfoDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
-    let end = $('#uldlinfoDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
-    let step = document.querySelector('#uldlinfoStepSelector').selectedOptions[0].value;
-    axios.get('/api/speedRangeLog.php', {
-        params : {
-            start_time : start,
-            end_time : end,
-            step : step
+    initLineChart(['dl', 'ul'], [
+        {
+            label: '平均下载速度 Mbps',
+            data: [],
+            borderColor: 'red',
+        },
+        {
+            label: '平均上传速度 Mbps',
+            data: [],
+            borderColor: '#0ae',
         }
-    }).then((rep) => {
-        clearCharts();
-        let repData = rep.data;
-        document.querySelector('#uldlinfoUserNum').innerHTML = repData.userNum;
-        document.querySelector('#uldlinfoTestNum').innerHTML = repData.testNum;
-        let chartData = {
-            labels: [],
-            datasets: [
-                {
-                    label: '平均下载速度 Mbps',
-                    data: [],
-                    borderColor: 'red',
-                },
-                {
-                    label: '平均上传速度 Mbps',
-                    data: [],
-                    borderColor: '#0ae',
-                }
-            ]    
-        };
-        for(let index = 0; index < repData.data.length; index ++) {
-            if(step == 'week') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd +7'));
-            }
-            else if(step == 'hour') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
-            }
-            else if(step == 'single') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
-            }
-            else {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
-            }
-            chartData.datasets[0].data.push(repData.data[index].avg.dl);
-            chartData.datasets[1].data.push(repData.data[index].avg.ul);
-        }
-        let canvas = document.querySelector('#uldlinfoChart').getContext('2d');
-        window.charts.push(new Chart(canvas, {
-            type : 'line',
-            data : chartData
-        }));
-    }).catch((error) => {
-        console.error(error);
-        alertModal('加载失败', '统计图数据加载失败');
-    });
+    ], 'uldl');
     e.preventDefault();
 });
 
 butt = document.querySelector("#pjinfoChartButt");
 butt.addEventListener('click', (e) => {
-    let start = $('#pjinfoDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
-    let end = $('#pjinfoDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
-    let step = document.querySelector('#pjinfoStepSelector').selectedOptions[0].value;
-    axios.get('/api/speedRangeLog.php', {
-        params : {
-            start_time : start,
-            end_time : end,
-            step : step
+    initLineChart(['ping', 'jitter'], [
+        {
+            label: 'ping ms',
+            data: [],
+            borderColor: 'red',
+        },
+        {
+            label: 'jitter ms',
+            data: [],
+            borderColor: '#0ae',
         }
+    ], 'pj');
+    e.preventDefault();
+});
+
+
+function initLineChart(apiDataName, chartDatasetsTemplate, elementIDPrefix) {
+    let start = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+    let end = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+    let step = document.querySelector(`#${elementIDPrefix}infoStepSelector`).selectedOptions[0].value;
+    let dayHourFlag = false;
+    if(step == 'dayHour') {
+        step = 'single';
+        dayHourFlag = true;
+    }
+    let reqParam = {
+        start_time: start,
+        end_time: end,
+        step: step
+    } 
+    if(dayHourFlag) {
+        reqParam.withdata = true;
+    }
+    axios.get('/api/speedRangeLog.php', {
+        params : reqParam
     }).then((rep) => {
         clearCharts();
         let repData = rep.data;
-        document.querySelector('#pjinfoUserNum').innerHTML = repData.userNum;
-        document.querySelector('#pjinfoTestNum').innerHTML = repData.testNum;
+        document.querySelector(`#${elementIDPrefix}infoUserNum`).innerHTML = repData.userNum;
+        document.querySelector(`#${elementIDPrefix}infoTestNum`).innerHTML = repData.testNum;
+        if(dayHourFlag) {
+            let hourData = new Array(24);
+            let fillDataJSON = JSON.stringify({
+                userNum: 0,
+                testNum: 0,
+                sum: {
+                    ping: 0,
+                    jitter: 0,
+                    dl: 0,
+                    ul: 0
+                },
+                avg: {
+                    ping: 0,
+                    jitter: 0,
+                    dl: 0,
+                    ul: 0
+                },
+                startTime : '',
+            });
+            let hourDataUser = new Array(24);
+            for(let hour = 0; hour < 24; hour ++) {
+                hourDataUser[hour] = {}; 
+                hourData[hour] = JSON.parse(fillDataJSON);
+                hourData[hour].startTime = new Date(2020, 1, 1, hour, 0, 0).getTime();
+            }
+            for (let i = 0; i < repData.data.length; i ++) {
+                let hour = new Date(repData.data[i].startTime * 1000).getHours();
+                hourData[hour].testNum ++;
+                hourDataUser[hour][repData.data[i].data[0].unumber] = true;
+                hourData[hour].sum.ping += repData.data[i].avg.ping;
+                hourData[hour].sum.jitter += repData.data[i].avg.jitter;
+                hourData[hour].sum.ul += repData.data[i].avg.ul;
+                hourData[hour].sum.dl += repData.data[i].avg.dl;
+            }
+            for (let i = 0; i < hourData.length; i++) {
+                if(hourData[i].testNum == 0) continue; 
+                hourData[i].userNum = Object.keys(hourDataUser[i]).length;
+                hourData[i].avg.ping = hourData[i].sum.ping / hourData[i].testNum;
+                hourData[i].avg.jitter = hourData[i].sum.jitter / hourData[i].testNum;
+                hourData[i].avg.ul = hourData[i].sum.ul / hourData[i].testNum;
+                hourData[i].avg.dl = hourData[i].sum.dl / hourData[i].testNum;
+            }
+            repData.data = hourData;
+        }
         let chartData = {
             labels: [],
-            datasets: [
-                {
-                    label: 'ping ms',
-                    data: [],
-                    borderColor: 'red',
-                },
-                {
-                    label: 'jitter ms',
-                    data: [],
-                    borderColor: '#0ae',
-                }
-            ]    
+            datasets: chartDatasetsTemplate
         };
         for(let index = 0; index < repData.data.length; index ++) {
             if(step == 'week') {
@@ -552,15 +527,23 @@ butt.addEventListener('click', (e) => {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh'));
             }
             else if(step == 'single') {
-                chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
+                if(dayHourFlag) {
+                    chartData.labels.push(new Date(repData.data[index].startTime).Format('hh时'));
+                }
+                else {
+                    chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd hh:mm'));
+                }
             }
             else {
                 chartData.labels.push(new Date(repData.data[index].startTime * 1000).Format('yyyy-MM-dd'));
             }
-            chartData.datasets[0].data.push(repData.data[index].avg.ping);
-            chartData.datasets[1].data.push(repData.data[index].avg.jitter);
+            repData.data[index].avg.testNum = repData.data[index].testNum;
+            repData.data[index].avg.userNum = repData.data[index].userNum;
+            for(let i = 0; i < apiDataName.length; i ++) {
+                chartData.datasets[i].data.push(repData.data[index].avg[apiDataName[i]]);
+            }
         }
-        let canvas = document.querySelector('#pjinfoChart').getContext('2d');
+        let canvas = document.querySelector(`#${elementIDPrefix}infoChart`).getContext('2d');
         window.charts.push(new Chart(canvas, {
             type : 'line',
             data : chartData
@@ -569,5 +552,4 @@ butt.addEventListener('click', (e) => {
         console.error(error);
         alertModal('加载失败', '统计图数据加载失败');
     });
-    e.preventDefault();
-});
+}
