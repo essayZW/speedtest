@@ -23,3 +23,24 @@
     margin-top: 40px;    
     margin-bottom: 20px;
 }
+
+.page[data-hash="/chart/pie"] > .row:nth-child(2),
+.page[data-hash="/chart/pie"] > .row:nth-child(3),
+.page[data-hash="/chart/pie"] > .row:nth-child(4)
+{
+    margin-top : 40px;
+}
+.box-header > .pie-dividedata-input-area {
+    position: relative;
+    top:0px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+}
+.box-header > .pie-box-title {
+    height: 30px;
+    line-height: 30px;
+}
+.text-center {
+    text-align: center;
+}

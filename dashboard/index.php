@@ -74,6 +74,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <li><a href="#/chart/useinfo"><i class="fa fa-circle-o"></i>测速人数与次数</a></li>
                             <li><a href="#/chart/uldlinfo"><i class="fa fa-circle-o"></i>上传下载速度</a></li>
                             <li><a href="#/chart/pjinfo"><i class="fa fa-circle-o"></i>ping和jitter</a></li>
+                            <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比详情</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -291,10 +292,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="form-group">
                                 <label>时间步长:</label>
                                 <select class="form-control" id="useinfoStepSelector">
+                                    <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
-                                    <option value="single">一条</option>
+                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -356,10 +358,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="form-group">
                                 <label>时间步长:</label>
                                 <select class="form-control" id="uldlinfoStepSelector">
+                                    <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
-                                    <option value="single">一条</option>
+                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -421,10 +424,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="form-group">
                                 <label>时间步长:</label>
                                 <select class="form-control" id="pjinfoStepSelector">
+                                    <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
                                     <option value="week">一周</option>
-                                    <option value="single">一条</option>
+                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -471,6 +475,103 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                     </div>
                 </div>
+                <div class="page" data-hash="/chart/pie">
+                    <div class="row">
+                        <form role="form" class="col-lg-12 form-inline">
+                            <div class="form-group">
+                                <label>数据时间范围:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right date-range-picker" id="pieinfoDatePicker">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" id="pieinfoChartButt">确认</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title col-lg-2 pie-box-title">用户测速次数占比</h3>
+                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control pull-right" value="5, 10, 20" id="userTestDivisionInput" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-6 col-lg-offset-3">
+                                        <div class="col-lg-6 col-lg-offset-3">
+                                            <div class="text-center">每位用户测速次数饼图</div>
+                                            <canvas id="userTestPieChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title col-lg-2 pie-box-title">下载、上传速度占比</h3>
+                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="dlulDivisionInput" value="100, 200, 500, 800, 1000" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-3 col-lg-offset-3">
+                                        <div class="text-center">下载速度饼图</div>
+                                        <canvas id="dlPieChart"></canvas>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="text-center">上传速度饼图</div>
+                                        <canvas id="ulPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title col-lg-2 pie-box-title">ping、jitter占比</h3>
+                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="pjDivisionInput" value="3, 5, 10, 100" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-3 col-lg-offset-3">
+                                        <div class="text-center">ping饼图</div>
+                                        <canvas id="pingPieChart"></canvas>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="text-center">jitter饼图</div>
+                                        <canvas id="jitterPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="main-footer">
@@ -499,12 +600,13 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
 
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+    <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
     <script src="/static/js/chart.min.js"></script>
+    <script src="/static/js/palette.js"></script>
     <script src="/static/js/adminlte.min.js"></script>
-    <script src="/static/js//moment.min.js"></script>
+    <script src="/static/js/moment.min.js"></script>
     <script src="/static/js/daterangepicker.js"></script>
     <script src="/static/js/router.js"></script>
     <script src="/static/js/dashboard.js"></script>
