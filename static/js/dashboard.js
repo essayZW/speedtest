@@ -268,7 +268,7 @@ let config = {
                         let newParams = {
                             all : '',
                             start : params.offset,
-                            offset : params.limit,
+                            length : params.limit,
                             search_data : searchData,
                             search_field : value
                         };
@@ -316,6 +316,19 @@ let config = {
             },
             callback : () => {
                 let butt = document.querySelector("#pjinfoChartButt");
+                butt.click();
+            }
+        },
+        {
+            path : '/chart/pie',
+            name : 'pieChart',
+            pageHeader : {
+                info : '下载速度、上传速度、ping和jitter各部分区间占比详情',
+                title : '占比详情',
+                pageTitle : '占比详情'
+            },
+            callback : () => {
+                let butt = document.querySelector('#pieinfoChartButt');
                 butt.click();
             }
         }
@@ -446,7 +459,180 @@ butt.addEventListener('click', (e) => {
     e.preventDefault();
 });
 
+let divisionButts = document.querySelectorAll('.pie-division-butt');
+for(let i = 0; i < divisionButts.length; i ++) {
+    divisionButts[i].addEventListener('click', () => {
+        document.querySelector("#pieinfoChartButt").click();
+    });
+}
+butt = document.querySelector("#pieinfoChartButt");
+butt.addEventListener('click', (e) => {
+    clearCharts();
+    let elementIDPrefix = 'pie';
+    let start = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+    let end = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+    axios.get('/api/speedRangeLog.php', {
+        params : {
+            start_time : start,
+            end_time : end,
+            step : 'single',
+            withdata : true
+        }
+    }).then((rep) => {
+        let repData = rep.data;
+        // 用来统计每个用户测速次数
+        let userTestNumsTable = {};
+        // 用来存储各项测试数据
+        let pingDatas = [],
+            jitterDatas = [],
+            dlDatas = [],
+            ulDatas = [],
+            userDatas = [];
+        for(let index = 0; index < repData.data.length; index ++) {
+            let singleData = repData.data[index].data[0];
+            if(userTestNumsTable[singleData.unumber] == undefined) {
+                userTestNumsTable[singleData.unumber] = 0;
+            }
+            userTestNumsTable[singleData.unumber] ++;
+            pingDatas.push(singleData.ping);
+            jitterDatas.push(singleData.jitter);
+            dlDatas.push(singleData.dl);
+            ulDatas.push(singleData.ul);
+        }
+        for(let key in userTestNumsTable) {
+            userDatas.push(userTestNumsTable[key]);
+        }
 
+        let userTestDivision = document.querySelector('#userTestDivisionInput').value;
+        userTestDivision = splitIntArray(userTestDivision, ',');
+        initPieChart(userTestDivision, userDatas, 'userTest');
+
+        let dlulDivision = document.querySelector('#dlulDivisionInput').value;
+        dlulDivision = splitIntArray(dlulDivision, ',');
+        initPieChart(dlulDivision, dlDatas, 'dl');
+        initPieChart(dlulDivision, ulDatas, 'ul');
+
+        let pjDivision = document.querySelector('#pjDivisionInput').value;
+        pjDivision = splitIntArray(pjDivision, ',');
+        initPieChart(pjDivision, pingDatas, 'ping');
+        initPieChart(pjDivision, jitterDatas, 'jitter');
+    }).catch((error) => {
+        console.error(error);
+        alertModal('加载失败', '统计图数据加载失败');
+    });
+    e.preventDefault();
+});
+
+/**
+ * 根据数据初始化一个饼图
+ * @param array division 区间划分数组
+ * @param array  datas 数据数组
+ * @param string elementIDPrefix canvas ID前缀
+ */
+function initPieChart(division, datas, elementIDPrefix) {
+    let chartData = getPieChartData(division, datas);
+    chartData = translateChartData(chartData);
+    let canvas = document.querySelector(`#${elementIDPrefix}PieChart`).getContext('2d');
+    window.charts.push(new Chart(canvas, {
+        type : 'pie',
+        data : chartData
+    }));
+}
+
+/**
+ * 从字符串中以某个字符分隔成数组，并转化为int 
+ * @param string str 需要分割的字符串
+ * @param string splitFlag 分隔标志 
+ */
+function splitIntArray(str, splitFlag) {
+    str = str.split(splitFlag);
+    let res = str.map((element) => {
+        return parseInt(element);
+    });
+    return res;
+}
+
+/**
+ * 将getPieChartData生成的数据转化为Chart.js需要的数据类型
+ * @param array data 需要转化的数据
+ */
+function translateChartData(data) {
+    let resDataTemplate = {
+        labels : [],
+        datasets : [
+            {
+                data : [],
+                backgroundColor: palette('tol', data.length).map(function (hex) {
+                    return '#' + hex;
+                })
+            }
+        ]
+    }
+    data.forEach((element) => {
+        resDataTemplate.labels.push(element.label);
+        resDataTemplate.datasets[0].data.push(element.value);
+        resDataTemplate.datasets[0].backgroundColor.push(element.color);
+    });
+    return resDataTemplate;
+}
+/**
+ * 生成用于chartjs 饼状图使用的数据
+ * @param array division 划分的区间
+ * @param array dataArray 所有的数据
+ */
+function getPieChartData(division, dataArray) {
+    if(division.length == 0) return [dataArray.length];
+    division.sort((a, b) => a - b);
+    dataArray.sort((a, b) => a - b);
+    let res = new Array(division.length + 1);
+    for(let i = 0; i < res.length; i ++) {
+        res[i] = {
+            value : 0,
+            label : '',
+            percentage : 0
+        };
+        if(i == 0) {
+            res[i].label = `(-INF, ${division[0]}]`;
+        }
+        else if(i == res.length - 1) {
+            res[i].label = `(${division[division.length - 1]}, +INF)`;
+        }
+        else {
+            res[i].label = `(${division[i - 1]}, ${division[i]}]`;
+        }
+    }
+    // division 区间数组，左开右闭
+    let resIndex = 0;
+    let dataIndex = 0;
+    while(dataIndex < dataArray.length && division[0] >= dataArray[dataIndex]) {
+        res[resIndex].value ++;
+        dataIndex ++;
+    }
+    resIndex++;
+    for(let i = 1; i < division.length && dataIndex < dataArray.length; i ++) {
+        // 区间 (division[i - 1], division[i]]
+        while(dataArray[dataIndex] > division[i - 1] && dataArray[dataIndex] <= division[i]) {
+            res[resIndex].value ++;
+            dataIndex ++;
+        }
+        resIndex ++;
+    }
+    while(dataIndex < dataArray.length && division[division.length - 1] < dataArray[dataIndex]) {
+        res[resIndex].value ++;
+        dataIndex ++;
+    }
+    for(let i = 0; i < res.length; i ++) {
+        res[i].percentage = res[i].value / dataArray.length;
+    }
+    return res;
+}
+
+/**
+ * 请求一段时间内的测速数据并绘制指定字段的变化情况 
+ * @param array apiDataName 需要展示的数据在API返回数据中的字段名
+ * @param object chartDatasetsTemplate 渲染给chartjs折线图的数据模板
+ * @param string elementIDPrefix 展示的相关UI的ID的前缀
+ */
 function initLineChart(apiDataName, chartDatasetsTemplate, elementIDPrefix) {
     let start = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
     let end = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
