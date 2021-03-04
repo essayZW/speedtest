@@ -2,25 +2,25 @@
 /**
  * param: all
  * description: 模式决定，返回多条数据
- * 
+ *
  * param: start
  * description: 分页开始的下标
- * 
- * param:length 
+ *
+ * param:length
  * description: 查询的数量
- * 
+ *
  * param: search
  * description: 是否开启搜索
- * 
+ *
  * param: search_field
  * description: 搜索的目标字段，只支持time, unumber, ip, name
- * 
+ *
  * param: search_data
  * description: 搜索的字段内容，模糊搜索
- * 
+ *
  * param: single
  * description: 模式决定，返回单个数据
- * 
+ *
  * param: id
  * description: 返回单个数据时的数据ID
  */
@@ -43,32 +43,40 @@ if(isset($_GET['all'])) {
                 $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND `timestamp` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
-            case 'unumber' : 
+            case 'unumber' :
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE unumber LIKE ?");
                 $q->bind_param('s', $search_data);
                 $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND unumber LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
-            case 'ip' : 
+            case 'ip' :
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE ip LIKE ?");
                 $q->bind_param('s', $search_data);
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND ip LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
+                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
+                                    FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                                    AND ip LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
             case 'name':
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE ip LIKE ?");
                 $q->bind_param('s', $search_data);
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND `name` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
+                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
+                                    FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                                    AND `name` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
             default:
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos");
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND `timestamp` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
+                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
+                                    FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                                    AND `timestamp` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("ii", $start, $length);
         };
     }
     else {
-        $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number ORDER BY `timestamp` DESC LIMIT ?,? ");
+        $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
+                            FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                            ORDER BY `timestamp` DESC LIMIT ?,? ");
         $p->bind_param("ii", $start, $length);
         $q = $conn->prepare("SELECT count(*) FROM speedtest_infos");
     }
@@ -108,7 +116,9 @@ if(isset($_GET['single'])) {
             'info' => 'need info'
         ]));
     }
-    $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND id = ?");
+    $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip
+                        FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                        AND id = ?");
     $p->bind_param('i', $id);
     $p->execute();
     $p->bind_result($id, $time, $dl, $ul, $ping, $jitter, $ip, $unumber);

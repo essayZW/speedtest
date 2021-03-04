@@ -2,16 +2,16 @@
 /**
  * param: start_time
  * description: 查询的记录开始时间
- * 
+ *
  * param : end_time
  * description: 查询的记录结束时间
- * 
+ *
  * param: average
  * description: 返回数据是否包含从start_time 到 end_time这一段时间的ul, dl, ping, jitter平均值
- * 
+ *
  * param: step
  * description: 数据分段的步长，支持小时，天，周，月
- * 
+ *
  * param: withdata
  * description: 是否在返回数据中携带具体的测速记录数据
  */
