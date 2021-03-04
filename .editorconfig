@@ -7,10 +7,6 @@ root = true
 [*]
 end_of_line = lf
 insert_final_newline = true
-
-# Matches multiple files with brace expansion notation
-# Set default charset  对于所有的js,py文件，设置文件字符集为utf-8
-[*.{js,py}]
 charset = utf-8
 
 # 4 space indentation 控制py文件类型的缩进大小
@@ -23,7 +19,7 @@ indent_size = 4
 indent_style = tab
 
 # Indentation override for all JS under lib directory  设置在lib目录下所有JS的缩进为
-[lib/**.js]
+[*.js]
 indent_style = space
 indent_size = 2
 
