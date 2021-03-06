@@ -1,5 +1,5 @@
 <?php
-require_once('./results/validation.php');
+require_once('./utils/validation.php');
 ?>
 <!DOCTYPE html>
 <html>

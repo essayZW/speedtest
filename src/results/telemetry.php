@@ -1,5 +1,5 @@
 <?php
-include_once('./validation.php');
+include_once(__DIR__ .  '/../utils/validation.php');
 include_once('telemetry_settings.php');
 require 'idObfuscation.php';
 

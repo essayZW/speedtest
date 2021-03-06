@@ -1,95 +1,4 @@
 <?php
-class Session {
-    static public function start() {
-        if(session_status() != PHP_SESSION_ACTIVE)
-            session_start();
-    }
-    static public function set($key, $value) {
-        self::start();
-        $_SESSION[$key] = $value;
-    }
-
-    static public function get($key) {
-        self::start();
-        return '2018040532';
-        if(!isset($_SESSION[$key])) return '';
-        return $_SESSION[$key];
-    }
-}
-class PermissionValidator extends Session {
-    static public $userdata;
-    static public $isLogin = false;
-    static public function check() {
-        self::start();
-        return isset($_SESSION['user']);
-    }
-
-    static public function validate($ticket) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, __PORTAL_VALIDATE_URL__ . '?service=' . getRequestUrl() . '&ticket=' . $ticket);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:text/xml; charset=utf-8"));
-        $output = curl_exec($ch);
-        curl_close($ch);
-        self::parse($output);
-        return self::$isLogin;
-    }
-
-    static public function parse($xmldata) {
-        $xmldata = str_replace("cas:", "", $xmldata);
-        $xml = simplexml_load_string($xmldata);
-        $xml = json_encode($xml);
-        $xml = json_decode($xml, true);
-        self::$isLogin = isset($xml['authenticationSuccess']);
-        if(!self::$isLogin) return;
-        self::$userdata = $xml['authenticationSuccess'];
-    }
-
-    static public function getLoginName() {
-        if(!self::$isLogin) return '';
-        return self::$userdata['attributes']['name'];
-    }
-
-    static public function getLoginNumber() {
-        if(!self::$isLogin) return '';
-        return self::$userdata['attributes']['employeeNumber'];
-    }
-}
-
-/**
- * 得到完整的请求URL
- */
-function getRequestUrl() {
-    $res = $_SERVER['SERVER_NAME'].':'.$_SERVER["SERVER_PORT"];
-    if(is_https()) {
-        return 'https://' . $res;
-    }
-    else {
-        return 'http://' . $res;
-    }
-}
-
-/**
- * PHP判断当前协议是否为HTTPS
- */
-function is_https() {
-    if ( !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') {
-        return true;
-    } elseif ( isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ) {
-        return true;
-    } elseif ( !empty($_SERVER['HTTP_FRONT_END_HTTPS']) && strtolower($_SERVER['HTTP_FRONT_END_HTTPS']) !== 'off') {
-        return true;
-    }
-    return false;
-}
-
-
-define('__PORTAL_VALIDATE_URL__', 'https://portal.buct.edu.cn/cas/serviceValidate');
-define('__PORTAL_LOGIN_URL__', 'https://portal.buct.edu.cn/cas/login');
-
-
 /**
  * 以下是判断IP地址是否属于某一个CIDR所表示的范围内的函数
  * 支持IPv6地址和IPv4地址
@@ -150,6 +59,7 @@ function getIPv4CIDRRange($prefix, $length) {
     $nums = explode('.', $prefix);
     // 给定的长度是前缀长度，在此转化成后面可变部分的长度
     $length = 32 - $length;
+    $binIp = '';
     for($i = 0; $i < 4; $i ++) {
         $binIp .=  str_pad(base_convert($nums[$i], 10, 2), 8, '0', STR_PAD_LEFT);
     }
