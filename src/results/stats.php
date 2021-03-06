@@ -1,5 +1,5 @@
 <?php
-require('./validation.php');
+include_once(__DIR__ .  '/../utils/validation.php');
 if(session_status() != PHP_SESSION_ACTIVE)
     session_start();
 error_reporting(0);
