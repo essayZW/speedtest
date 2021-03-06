@@ -1,187 +1,310 @@
 <?php
-/**
- * 以下是判断IP地址是否属于某一个CIDR所表示的范围内的函数
- * 支持IPv6地址和IPv4地址
- */
 
 /**
- * 将给定二进制位按照$width 的步长转化为十进制
- *
- * @param string $bin
- * @param integer $width
- * @return array 
+ * ip地址CIDR信息类,支持查询表示范围以及判断某一个IP地址是否在该表示范围内
  */
-function bin2decWithWidth($bin, $width) {
-    $res = [];
-    $i = strlen($bin) - 1;
-    while($i >= 0) {
-        $temp = '';
-        for($j = 0; $j < $width; $j ++) {
-            $temp .= $bin[$i];
-            $i --;
+class IpCIDR {
+    static $IPv4_FLAG = 4;
+    static $IPv6_FLAG = 6;
+
+    public $prefix;
+    public $prefixLength;
+    private $type;
+    private $range;
+
+    public function __construct($prefix, $prefixLength = 0) {
+        // prefix 类似于 x.x.x.x/length 
+        if (strpos($prefix, '/') !== false) {
+            $temp = explode('/', $prefix);
+            $prefix = $temp[0];
+            $prefixLength = $temp[1];
         }
-        $temp = strrev($temp);
-        $res = array_merge([base_convert($temp, 2, 10)], $res);
-    } 
-    return $res;
-}
-
-/**
- * 将给定二进制位按照$width 的步长转化为十六进制
- *
- * @param string $bin
- * @param integer $width
- * @return array 
- */
-function bin2hexWithWidth($bin, $width) {
-    $res = [];
-    $i = strlen($bin) - 1;
-    while($i >= 0) {
-        $temp = '';
-        for($j = 0; $j < $width; $j ++) {
-            $temp .= $bin[$i];
-            $i --;
+        $this->prefix = $prefix;
+        if (filter_var($this->prefix, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $type = self::$IPv4_FLAG;
         }
-        $temp = strrev($temp);
-        $res = array_merge([base_convert($temp, 2, 16)], $res);
-    } 
-    return $res;
-}
+        else if (filter_var($this->prefix, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            $type = self::$IPv6_FLAG;
+        }
+        else {
+            $type = 0;
+        }
+        if ($type == 0) {
+            throw new Exception('error cidr prefix given!');
+        }
+        $prefixLength = (int) $prefixLength;
+        if ($prefixLength < 0) {
+            throw new Exception('CIDR prefix length must be a positive integer');
+        }
+        if ($type == self::$IPv4_FLAG && $prefixLength > 32) {
+            throw new Exception('IPv4 CIDR prefix length should not greater than 32');
+        }
+        else if ($type == self::$IPv6_FLAG && $prefixLength > 128) {
+            throw new Exception('IPv6 CIDR prefix length should not greater than 128');
+        }
+        $this->type = $type;
+        $this->prefixLength = $prefixLength;
 
-/**
- * 得到给定的IPv4地址下的CIDR范围
- *
- * @param string $prefix CIDR 前缀
- * @param integer  $length  共享前缀长度
- * @return array 包含开始地址与结束地址的数组 
- */
-function getIPv4CIDRRange($prefix, $length) {
-    $nums = explode('.', $prefix);
-    // 给定的长度是前缀长度，在此转化成后面可变部分的长度
-    $length = 32 - $length;
-    $binIp = '';
-    for($i = 0; $i < 4; $i ++) {
-        $binIp .=  str_pad(base_convert($nums[$i], 10, 2), 8, '0', STR_PAD_LEFT);
+        if ($this->type == self::$IPv4_FLAG) {
+            $this->range = $this->getIPv4CIDRRange();
+        }
+        else {
+            $this->range = $this->getIPv6CIDRRange();
+        }
     }
-    // 将后面的$length 位置为0，得到起始IP
-    for($i = 0; $i < $length; $i ++) {
-        $binIp[32 - $i - 1] = '0';
-    }
-    $nums = bin2decWithWidth($binIp, 8);
-    $startIp = implode('.', $nums);
-    // 将后面的$length 位置为1，得到结束IP
-    for($i = 0; $i < $length; $i ++) {
-        $binIp[32 - $i - 1] = '1';
-    }
-    $nums = bin2decWithWidth($binIp, 8);
-    $endIp= implode('.', $nums);
-    return [$startIp, $endIp];
-}
 
-/**
- * 展开IPv6地址中的双冒号
- *
- * @return void
- */
-function expandIpv6($ip) {
-    if(strpos($ip, '::') === false) {
-        // 没有::
+    /**
+     * 得到当前的CIDR所表示的是IPv4还是IPv6
+     * @return integer IPCIDR::IPv4_FLAG | IPCODR::IPv_6_FLAG, 若返回0则表示非法地址
+     */
+    public function getType() {
+        return $this->type;
+    }
+
+    /**
+     * 返回当前CIDR所表示的范围
+     */
+    public function getRange() {
+        return $this->range;
+    }
+
+
+    /**
+    * 计算给定的IPv6下的CIDR表示的地址范围
+    *
+    * @param string $prefix 前缀
+    * @param integer $length 共享前缀长度
+    * @return array 
+    */
+    private function getIPv6CIDRRange() {
+        $prefix = $this->prefix;
+        $length = $this->prefixLength;
+        $prefix = $this->expandIpv6($prefix);
+        $nums = explode(':', $prefix);
+        $bin = '';
+        $length = 128 - $length;
+        for($i = 0; $i < 8; $i ++) {
+            $bin .= str_pad(base_convert($nums[$i], 16, 2), 16, '0', STR_PAD_LEFT);
+        }
+        // 计算起始IP地址
+        for($i = 0; $i < $length; $i ++) {
+            $bin[128 - $i - 1] = '0';
+        }
+        $startIp = $this->bin2hexWithWidth($bin, 16);
+        $startIp = implode(':', $startIp);
+        // 计算结束IP
+        for($i = 0; $i < $length; $i ++) {
+            $bin[128 - $i - 1] = '1';
+        }
+        $endIp = $this->bin2hexWithWidth($bin, 16);
+        $endIp = implode(':', $endIp);
+        return [$startIp, $endIp];
+    }
+
+
+    /**
+    * 将给定二进制位按照$width 的步长转化为十进制
+    *
+    * @param string $bin
+    * @param integer $width
+    * @return array 
+    */
+    private function bin2decWithWidth($bin, $width) {
+        $res = [];
+        $i = strlen($bin) - 1;
+        while($i >= 0) {
+            $temp = '';
+            for($j = 0; $j < $width; $j ++) {
+                $temp .= $bin[$i];
+                $i --;
+            }
+            $temp = strrev($temp);
+            $res = array_merge([base_convert($temp, 2, 10)], $res);
+        } 
+        return $res;
+    }
+
+    /**
+    * 将给定二进制位按照$width 的步长转化为十六进制
+    *
+    * @param string $bin
+    * @param integer $width
+    * @return array 
+    */
+    private function bin2hexWithWidth($bin, $width) {
+        $res = [];
+        $i = strlen($bin) - 1;
+        while($i >= 0) {
+            $temp = '';
+            for($j = 0; $j < $width; $j ++) {
+                $temp .= $bin[$i];
+                $i --;
+            }
+            $temp = strrev($temp);
+            $res = array_merge([base_convert($temp, 2, 16)], $res);
+        } 
+        return $res;
+    }
+
+    /**
+    * 得到给定的IPv4地址下的CIDR范围
+    *
+    * @return array 包含开始地址与结束地址的数组 
+    */
+    private function getIPv4CIDRRange() {
+        $prefix = $this->prefix;
+        $length = $this->prefixLength;
+        $nums = explode('.', $prefix);
+        // 给定的长度是前缀长度，在此转化成后面可变部分的长度
+        $length = 32 - $length;
+        $binIp = '';
+        for($i = 0; $i < 4; $i ++) {
+            $binIp .=  str_pad(base_convert($nums[$i], 10, 2), 8, '0', STR_PAD_LEFT);
+        }
+        // 将后面的$length 位置为0，得到起始IP
+        for($i = 0; $i < $length; $i ++) {
+            $binIp[32 - $i - 1] = '0';
+        }
+        $nums = $this->bin2decWithWidth($binIp, 8);
+        $startIp = implode('.', $nums);
+        // 将后面的$length 位置为1，得到结束IP
+        for($i = 0; $i < $length; $i ++) {
+            $binIp[32 - $i - 1] = '1';
+        }
+        $nums = $this->bin2decWithWidth($binIp, 8);
+        $endIp= implode('.', $nums);
+        return [$startIp, $endIp];
+    }
+
+    /**
+    * 展开IPv6地址中的双冒号
+    *
+    * @return void
+    */
+    private function expandIpv6($ip) {
+        if(strpos($ip, '::') === false) {
+            // 没有::
+            return $ip;
+        }
+        // 省略的为0的项数，为冒号个数减去两个冒号个数后得到已经有的项数，在被7减去
+        $nums = 9 - substr_count($ip, ':');
+        $replace = ':';
+        for($i = 0; $i < $nums; $i ++) {
+            $replace .= '0:';
+        }
+        $ip = str_replace('::', $replace, $ip);
+        if($ip[0] == ':') {
+            $ip = substr($ip, 1);
+        }
+        if($ip[strlen($ip) - 1] == ':') {
+            $ip = substr($ip, 0, -1);
+        }
         return $ip;
     }
-    // 省略的为0的项数，为冒号个数减去两个冒号个数后得到已经有的项数，在被7减去
-    $nums = 9 - substr_count($ip, ':');
-    $replace = ':';
-    for($i = 0; $i < $nums; $i ++) {
-        $replace .= '0:';
+    /**
+    * 按照字符串分割给定的字符串并将分割的每一个部分进行pad后再进行拼接
+    *
+    * @param string $str
+    * @param string $splitFlagStr
+    * @param integer $padLength
+    * @param string $padStr
+    * @param integer $padFlag
+    * @return string 
+    */
+    private function splitAndPad($str, $splitFlagStr, $padLength, $padStr = ' ', $padFlag) {
+        $arr = explode($splitFlagStr, $str);
+        for ($i = 0; $i < count($arr); $i ++) {
+            $arr[$i] = str_pad($arr[$i], $padLength, $padStr, $padFlag);
+        }
+        return implode($splitFlagStr, $arr);
     }
-    $ip = str_replace('::', $replace, $ip);
-    if($ip[0] == ':') {
-        $ip = substr($ip, 1);
-    }
-    if($ip[strlen($ip) - 1] == ':') {
-        $ip = substr($ip, 0, -1);
-    }
-    return $ip;
-}
-/**
- * 按照字符串分割给定的字符串并将分割的每一个部分进行pad后再进行拼接
- *
- * @param string $str
- * @param string $splitFlagStr
- * @param integer $padLength
- * @param string $padStr
- * @param integer $padFlag
- * @return string 
- */
-function splitAndPad($str, $splitFlagStr, $padLength, $padStr = ' ', $padFlag) {
-    $arr = explode($splitFlagStr, $str);
-    for ($i = 0; $i < count($arr); $i ++) {
-        $arr[$i] = str_pad($arr[$i], $padLength, $padStr, $padFlag);
-    }
-    return implode($splitFlagStr, $arr);
-}
 
-/**
- * 计算给定的IPv6下的CIDR表示的地址范围
- *
- * @param string $prefix 前缀
- * @param integer $length 共享前缀长度
- * @return array 
- */
-function getIPv6CIDRRange($prefix, $length) {
-    $prefix = expandIpv6($prefix);
-    $nums = explode(':', $prefix);
-    $bin = '';
-    $length = 128 - $length;
-    for($i = 0; $i < 8; $i ++) {
-        $bin .= str_pad(base_convert($nums[$i], 16, 2), 16, '0', STR_PAD_LEFT);
-    }
-    // 计算起始IP地址
-    for($i = 0; $i < $length; $i ++) {
-        $bin[128 - $i - 1] = '0';
-    }
-    $startIp = bin2hexWithWidth($bin, 16);
-    $startIp = implode(':', $startIp);
-    // 计算结束IP
-    for($i = 0; $i < $length; $i ++) {
-        $bin[128 - $i - 1] = '1';
-    }
-    $endIp = bin2hexWithWidth($bin, 16);
-    $endIp = implode(':', $endIp);
-    return [$startIp, $endIp];
-}
-/**
- * 判断给定的IP地址是否属于给定的CIDR所表示的IP范围内
- *
- * @param string $ip 给定的IP
- * @param string $cidrPrefix 给定的CIDR前缀
- * @param integer $cidrLength CIDR前缀长度
- * @return boolean
- */
-function isIpInCIDRRange($ip, $cidrPrefix, $cidrLength) {
-    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-        $range = getIPv4CIDRRange($cidrPrefix, $cidrLength);
-        $ip = splitAndPad($ip, '.', 3, '0', STR_PAD_LEFT);
-        $range[0] = splitAndPad($range[0], '.', 3, '0', STR_PAD_LEFT);
-        $range[1] = splitAndPad($range[1], '.', 3, '0', STR_PAD_LEFT);
-        return strcmp($ip, $range[0]) >= 0 && strcmp($ip, $range[1]) <= 0;
-    }
-    else if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        $range = getIPv6CIDRRange($cidrPrefix, $cidrLength);
-        $ip = splitAndPad($ip, ':', 4, '0', STR_PAD_LEFT);
-        $range[0] = splitAndPad($range[0], ':', 4, '0', STR_PAD_LEFT);
-        $range[1] = splitAndPad($range[1], ':', 4, '0', STR_PAD_LEFT);
-        return strcmp($ip, $range[0]) >= 0 && strcmp($ip, $range[1]) <= 0;
-    }
-    else {
-        return false;
+    /**
+    * 判断给定的IP地址是否属于给定的CIDR所表示的IP范围内
+    *
+    * @param string $ip 给定的IP
+    * @param string $cidrPrefix 给定的CIDR前缀
+    * @param integer $cidrLength CIDR前缀长度
+    * @return boolean
+    */
+    function isIpInRange($ip) {
+        $cidrLength = $this->prefixLength;
+        $cidrPrefix = $this->prefix;
+        if ($this->type == self::$IPv4_FLAG) {
+            $range = $this->getIPv4CIDRRange($cidrPrefix, $cidrLength);
+            $ip = $this->splitAndPad($ip, '.', 3, '0', STR_PAD_LEFT);
+            $range[0] = $this->splitAndPad($range[0], '.', 3, '0', STR_PAD_LEFT);
+            $range[1] = $this->splitAndPad($range[1], '.', 3, '0', STR_PAD_LEFT);
+            return strcmp($ip, $range[0]) >= 0 && strcmp($ip, $range[1]) <= 0;
+        }
+        else if ($this->type == self::$IPv6_FLAG) {
+            $range = $this->getIPv6CIDRRange($cidrPrefix, $cidrLength);
+            $ip = $this->splitAndPad($ip, ':', 4, '0', STR_PAD_LEFT);
+            $range[0] = $this->splitAndPad($range[0], ':', 4, '0', STR_PAD_LEFT);
+            $range[1] = $this->splitAndPad($range[1], ':', 4, '0', STR_PAD_LEFT);
+            return strcmp($ip, $range[0]) >= 0 && strcmp($ip, $range[1]) <= 0;
+        }
+        else {
+            throw new Exception('invalid ip ');
+        }
     }
 }
 
-// test
-// print_r(getIPv4CIDRRange('10.10.1.32', 9));
-// var_dump(isIpInCIDRRange('10.10.127.32', '10.10.1.32', 9));
-// var_dump(expandIpv6('2001:da8:ff3a:c88e::'));
+// IpCIDR class test
+// $ipv4 = new IpCIDR('10.10.1.32/9');
+// var_dump($ipv4->getRange());
+// var_dump($ipv4->isIpInRange('10.10.127.32'));
+// 
+// $ipv6 = new IpCIDR('::2001:da8:ff3a:c88e', 119);
+// var_dump($ipv6->getRange());
+// var_dump($ipv6->isIpInRange('0000:0000:0000:0000:2001:0da8:ff3a:c8ff'));
 
-// var_dump(getIPv6CIDRRange('::2001:da8:ff3a:c88e', 119));
-// var_dump(isIpInCIDRRange('0000:0000:0000:0000:2001:0da8:ff3a:c8ff', '::2001:da8:ff3a:c88e', 119));
+
+
+
+/**
+ * 支持导入指定的IP CIDR过滤列表，以检测给定的IP是否属于某一个CIDR列表中
+ * 并根据匹配的规则查找对应的预设相关信息
+ * 以做到将IP与ISP信息通过CIDR信息关联
+ */
+class IpCIDRFilter {
+    public $filterList;
+    public function __construct($filterList = []) {
+        for($i = 0; $i < count($filterList); $i ++) {
+            $singleFilter = $filterList[$i];
+            if (! $singleFilter['rule'] instanceof IpCIDR) {
+                throw new Exception('single filter rule must be a instance of class IpCIDR');
+            }
+        }
+        $this->filterList = $filterList;
+    }
+
+    /**
+     * 验证指定的IP符合哪些过滤器
+     * 
+     * @param string 需要验证的IP
+     * @return array 返回符合过滤规则的过滤器的Index列表 
+     */
+    public function test($ip) {
+        $matchedIndex = [];
+        for($i = 0; $i < count($this->filterList); $i ++) {
+            $singleFilter = $this->filterList[$i]['rule'];
+            if ($singleFilter->isIpInRange($ip)) {
+                $matchedIndex[] = $i;
+            }
+        }
+        return $matchedIndex;
+    }
+
+    /**
+     * 通过指定的Index得到对应的过滤器的信息
+     * @param integer $index
+     * @return mixed 指定的过滤器info字段，若无则返回null
+     */
+    public function getFilterInfoByIndex($index) {
+        if (isset($this->filterList[$index])) {
+            return $this->filterList[$index]['info'];
+        }
+        return null;
+    }
+}

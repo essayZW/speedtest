@@ -5,7 +5,7 @@ require 'idObfuscation.php';
 
 // 检查必须的参数
 if(!isset($_POST['dl']) || !isset($_POST['ul'])
-|| !isset($_POST['png']) || !isset($_POST['jitter']))
+|| !isset($_POST['ping']) || !isset($_POST['jitter']))
 {
     die('0');
 }
