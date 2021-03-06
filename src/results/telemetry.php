@@ -1,7 +1,15 @@
 <?php
-include_once('./validation.php');
+include_once(__DIR__ .  '/../utils/validation.php');
 include_once('telemetry_settings.php');
 require 'idObfuscation.php';
+
+// 检查必须的参数
+if(!isset($_POST['dl']) || !isset($_POST['ul'])
+|| !isset($_POST['png']) || !isset($_POST['jitter']))
+{
+    die('0');
+}
+ 
 
 $ip=($_SERVER['REMOTE_ADDR']);
 $ispinfo=($_POST["ispinfo"]);
