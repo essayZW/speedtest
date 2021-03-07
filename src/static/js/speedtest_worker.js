@@ -300,8 +300,8 @@ function getIp(done) {
 		tlog("IP: " + xhr.responseText + ", took " + (new Date().getTime() - startT) + "ms");
 		try {
 			var data = JSON.parse(xhr.responseText);
-			clientIp = data.processedString;
-			ispInfo = data.rawIspInfo;
+			clientIp = data.ip + ' - ' + data.isp;
+			ispInfo = data.ispInfo;
 		} catch (e) {
 			clientIp = xhr.responseText;
 			ispInfo = "";

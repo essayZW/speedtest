@@ -68,7 +68,29 @@ class IpCIDR {
         return $this->range;
     }
 
-
+    /**
+     * 将给定的字符串按照指定宽度为一组，将每组从指定的进制转化为另一种进制
+     *
+     * @param string $source 源字符串
+     * @param integer $width 每组的宽度，不足的部分补足前导0
+     * @param integer $fromBase 源字符串进制
+     * @param integer $toBase 目标字符串进制
+     * @return array 
+     */
+    private function baseConvertWithWidth($source, $width, $fromBase, $toBase) {
+        $res = [];
+        $i = strlen($source) - 1;
+        while($i >= 0) {
+            $temp = '';
+            for($j = 0; $j < $width; $j ++) {
+                $temp .= $source[$i];
+                $i --;
+            }
+            $temp = strrev($temp);
+            $res = array_merge([base_convert($temp, $fromBase, $toBase)], $res);
+        } 
+        return $res;
+    }
     /**
     * 计算给定的IPv6下的CIDR表示的地址范围
     *
@@ -90,61 +112,17 @@ class IpCIDR {
         for($i = 0; $i < $length; $i ++) {
             $bin[128 - $i - 1] = '0';
         }
-        $startIp = $this->bin2hexWithWidth($bin, 16);
+        $startIp = $this->baseConvertWithWidth($bin, 16, 2, 16);
         $startIp = implode(':', $startIp);
         // 计算结束IP
         for($i = 0; $i < $length; $i ++) {
             $bin[128 - $i - 1] = '1';
         }
-        $endIp = $this->bin2hexWithWidth($bin, 16);
+        $endIp = $this->baseConvertWithWidth($bin, 16, 2, 16);
         $endIp = implode(':', $endIp);
         return [$startIp, $endIp];
     }
 
-
-    /**
-    * 将给定二进制位按照$width 的步长转化为十进制
-    *
-    * @param string $bin
-    * @param integer $width
-    * @return array 
-    */
-    private function bin2decWithWidth($bin, $width) {
-        $res = [];
-        $i = strlen($bin) - 1;
-        while($i >= 0) {
-            $temp = '';
-            for($j = 0; $j < $width; $j ++) {
-                $temp .= $bin[$i];
-                $i --;
-            }
-            $temp = strrev($temp);
-            $res = array_merge([base_convert($temp, 2, 10)], $res);
-        } 
-        return $res;
-    }
-
-    /**
-    * 将给定二进制位按照$width 的步长转化为十六进制
-    *
-    * @param string $bin
-    * @param integer $width
-    * @return array 
-    */
-    private function bin2hexWithWidth($bin, $width) {
-        $res = [];
-        $i = strlen($bin) - 1;
-        while($i >= 0) {
-            $temp = '';
-            for($j = 0; $j < $width; $j ++) {
-                $temp .= $bin[$i];
-                $i --;
-            }
-            $temp = strrev($temp);
-            $res = array_merge([base_convert($temp, 2, 16)], $res);
-        } 
-        return $res;
-    }
 
     /**
     * 得到给定的IPv4地址下的CIDR范围
@@ -165,13 +143,13 @@ class IpCIDR {
         for($i = 0; $i < $length; $i ++) {
             $binIp[32 - $i - 1] = '0';
         }
-        $nums = $this->bin2decWithWidth($binIp, 8);
+        $nums = $this->baseConvertWithWidth($binIp, 8, 2, 10);
         $startIp = implode('.', $nums);
         // 将后面的$length 位置为1，得到结束IP
         for($i = 0; $i < $length; $i ++) {
             $binIp[32 - $i - 1] = '1';
         }
-        $nums = $this->bin2decWithWidth($binIp, 8);
+        $nums = $this->baseConvertWithWidth($binIp, 8, 2, 10);
         $endIp= implode('.', $nums);
         return [$startIp, $endIp];
     }
