@@ -25,78 +25,94 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
     $ip = $_SERVER['REMOTE_ADDR'];
 }
 
-$ip = preg_replace("/^::ffff:/", "", $ip);
+// $ip = preg_replace("/^::ffff:/", "", $ip);
+include_once(__DIR__ . '/../utils/cidr.php');
+include_once(__DIR__ . '/../results/telemetry_settings.php');
+// 得到CIDR 过滤列表
+$cidrRuleList = [];
+$conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
+$p = $conn->prepare('SELECT `cidr`, position, accessmethod, isp, ispinfo FROM  speedtest_cidrinfo');
+$p->execute();
+$p->bind_result($cidr, $position, $accessMethod, $isp, $ispInfo);
+while ($p->fetch()) {
+    $cidrRuleList[] = [
+        'rule' => $cidr,
+        'info' => [
+            'position' => $position,
+            'accessMethod' => $accessMethod,
+            'isp' => $isp,
+            'ispInfo' => $ispInfo
+        ]
+    ];
+}
+$p->close();
+$conn->close();
+$cidrFilterList = [];
+for ($i = 0; $i < count($cidrRuleList); $i ++) {
+    $currentRule = $cidrRuleList[$i];
+    if (isset($currentRule['rule']) && is_string($currentRule['rule'])) {
+        try {
+            $cidrFilterList[] = [
+                'rule' => new IpCIDR($currentRule['rule']),
+                'info' => $currentRule['info']
+            ];
+        }
+        catch (Exception $e) {
+            // nothing to do
+        }
+    }
+}
+$filter = new IpCIDRFilter($cidrFilterList);
+$matchedIndex = $filter->test($ip);
+if (isset($matchedIndex[0])) {
+    $ispInfo = $filter->getFilterInfoByIndex($matchedIndex[0]);
+    $ispInfo['ip'] = $ip;
+    echo json_encode($ispInfo);
+    die();
+}
 
-if ($ip == "::1") { // ::1/128 is the only localhost ipv6 address. there are no others, no need to strpos this
-    echo json_encode(['processedString' => $ip . " - localhost IPv6 access", 'rawIspInfo' => ""]);
-    die();
-}
-if (stripos($ip, 'fe80:') === 0) { // simplified IPv6 link-local address (should match fe80::/10)
-    echo json_encode(['processedString' => $ip . " - link-local IPv6 access", 'rawIspInfo' => ""]);
-    die();
-}
-if (strpos($ip, '127.') === 0) { //anything within the 127/8 range is localhost ipv4, the ip must start with 127.0
-    echo json_encode(['processedString' => $ip . " - localhost IPv4 access", 'rawIspInfo' => ""]);
-    die();
-}
-if (strpos($ip, '10.') === 0) { // 10/8 private IPv4
-    echo json_encode(['processedString' => $ip . " - private IPv4 access", 'rawIspInfo' => ""]);
-    die();
-}
-if (preg_match('/^172\.(1[6-9]|2\d|3[01])\./', $ip) === 1) { // 172.16/12 private IPv4
-    echo json_encode(['processedString' => $ip . " - private IPv4 access", 'rawIspInfo' => ""]);
-    die();
-}
-if (strpos($ip, '192.168.') === 0) { // 192.168/16 private IPv4
-    echo json_encode(['processedString' => $ip . " - private IPv4 access", 'rawIspInfo' => ""]);
-    die();
-}
-if (strpos($ip, '169.254.') === 0) { // IPv4 link-local
-    echo json_encode(['processedString' => $ip . " - link-local IPv4 access", 'rawIspInfo' => ""]);
-    die();
-}
-$school_cidr_info = json_encode(['processedString' => $ip . " - private IPv4 access", 'rawIspInfo' => ""]);
-if(preg_match('/^202\.4\.1(2[8-9]|[3-5]\d)\./', $ip) === 1) { // IPv4 202.4.128.0/19
-    echo $school_cidr_info;
-    die();
-}
-if(preg_match('/^219\.242\.(9[6-9]|10\d|111)\./', $ip) === 1) { // IPv4 219.242.96.0/20
-    echo $school_cidr_info;
-    die();
-}
-if(preg_match('/^219\.225\.(\d|1[0-5])\./', $ip) === 1) { // IPv4 219.225.0.0/20
-    echo $school_cidr_info;
-    die();
-}
-if(preg_match('/^222\.199\.2(2[4-9]|[3-4]\d|5[0-5])\./', $ip) === 1) { // IPv4 222.199.224.0/19
-    echo $school_cidr_info;
-    die();
-}
-if(preg_match('/^121\.195\.1(2[8-9]|[3-5]\d)\./', $ip) === 1) { // IPv4 121.195.128.0/19
-    echo $school_cidr_info;
-    die();
-}
-if(preg_match('/^58\.195\.88\.(6[4-9]|7\d)$/', $ip) === 1) { // IPv4 58.195.88.64/28
-    echo $school_cidr_info;
-    die();
-}
-$school_cidr_info = json_encode(['processedString' => $ip . " - private IPv6 access", 'rawIspInfo' => ""]);
-if(strpos($ip, '2001:0250:0207:') === 0) { // IPv6 2001:250:207::/48
-    echo $school_cidr_info;
-    die();
-}
-if(strpos($ip, '0010:0001:0001:0007:' === 0)) { // IPv6 10:1:1:7::/64
-    echo $school_cidr_info;
-    die();
-}
-if(strpos($ip, '2001:0da8:ff3a:c88e:') === 0) { // IPv6 2001:da8:ff3a:c88e::/64
-    echo $school_cidr_info;
-    die();
-}
-if(strpos($ip, '2001:0da8:0237:') === 0) { // IPv6 2001:da8:237::/48
-    echo $school_cidr_info;
-    die();
-}
+// $school_cidr_info = json_encode(['processedString' => $ip . " - private IPv4 access", 'rawIspInfo' => ""]);
+// if(preg_match('/^202\.4\.1(2[8-9]|[3-5]\d)\./', $ip) === 1) { // IPv4 202.4.128.0/19
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(preg_match('/^219\.242\.(9[6-9]|10\d|111)\./', $ip) === 1) { // IPv4 219.242.96.0/20
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(preg_match('/^219\.225\.(\d|1[0-5])\./', $ip) === 1) { // IPv4 219.225.0.0/20
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(preg_match('/^222\.199\.2(2[4-9]|[3-4]\d|5[0-5])\./', $ip) === 1) { // IPv4 222.199.224.0/19
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(preg_match('/^121\.195\.1(2[8-9]|[3-5]\d)\./', $ip) === 1) { // IPv4 121.195.128.0/19
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(preg_match('/^58\.195\.88\.(6[4-9]|7\d)$/', $ip) === 1) { // IPv4 58.195.88.64/28
+//     echo $school_cidr_info;
+//     die();
+// }
+// $school_cidr_info = json_encode(['processedString' => $ip . " - private IPv6 access", 'rawIspInfo' => ""]);
+// if(strpos($ip, '2001:0250:0207:') === 0) { // IPv6 2001:250:207::/48
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(strpos($ip, '0010:0001:0001:0007:' === 0)) { // IPv6 10:1:1:7::/64
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(strpos($ip, '2001:0da8:ff3a:c88e:') === 0) { // IPv6 2001:da8:ff3a:c88e::/64
+//     echo $school_cidr_info;
+//     die();
+// }
+// if(strpos($ip, '2001:0da8:0237:') === 0) { // IPv6 2001:da8:237::/48
+//     echo $school_cidr_info;
+//     die();
+// }
 /**
  * Optimized algorithm from http://www.codexworld.com
  *
@@ -188,8 +204,19 @@ if (isset($_GET["isp"])) {
     } catch (Exception $ex) {
         $isp = "Unknown ISP";
     }
-    echo json_encode(['processedString' => $ip . " - " . $isp, 'rawIspInfo' => $rawIspInfo]);
+    echo json_encode([
+        'ip' => $ip,
+        'isp' => $isp,
+        'ispInfo' => $rawIspInfo,
+        'position' => null,
+        'accessMethod' => null
+    ]);
 } else {
-    echo json_encode(['processedString' => $ip, 'rawIspInfo' => ""]);
+    echo json_encode([
+        'ip' => $ip,
+        'isp' => $isp,
+        'ispInfo' => null,
+        'position' => null,
+        'accessMethod' => null
+    ]);
 }
-?>
