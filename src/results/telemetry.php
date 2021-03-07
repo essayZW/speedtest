@@ -41,55 +41,17 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, s-maxage=
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
-if ($db_type == "mysql") {
-    $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port) or die("1");
-    $p = $conn->prepare('SELECT id FROM speedtest_users WHERE `number` = ?');
-    $p->bind_param('s', $__USER_NUMBER__);
-    $p->execute();
-    $p->bind_result($userid);
-    $p->fetch();
-    $p->close();
-    $stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,userid) VALUES (?,?,?,?,?,?,?,?,?,?,?)") or die("2");
-    $stmt->bind_param("sssssssssss", $ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $userid) or die("3");
-    $stmt->execute() or die("4");
-    $stmt->close() or die("5");
-    $id = $conn->insert_id;
-    echo "id " . ($enable_id_obfuscation ? obfuscateId($id) : $id);
-    $conn->close() or die("6");
-} elseif ($db_type == "sqlite") {
-    $conn = new PDO("sqlite:$Sqlite_db_file") or die("1");
-    $conn->exec("
-        CREATE TABLE IF NOT EXISTS `speedtest_infos` (
-        `id`    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		`ispinfo`    text,
-		`extra`    text,
-        `timestamp`     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        `ip`    text NOT NULL,
-        `ua`    text NOT NULL,
-        `lang`  text NOT NULL,
-        `dl`    text,
-        `ul`    text,
-        `ping`  text,
-        `jitter`        text,
-        `log`   longtext
-        );
-    ");
-    $stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log) VALUES (?,?,?,?,?,?,?,?,?,?)") or die("2");
-    $stmt->execute(array($ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log)) or die("3");
-    $id = $conn->lastInsertId();
-    echo "id " . ($enable_id_obfuscation ? obfuscateId($id) : $id);
-    $conn = null;
-} elseif ($db_type == "postgresql") {
-    // Prepare connection parameters for db connection
-    $conn_host = "host=$PostgreSql_hostname";
-    $conn_db = "dbname=$PostgreSql_databasename";
-    $conn_user = "user=$PostgreSql_username";
-    $conn_password = "password=$PostgreSql_password";
-    // Create db connection
-    $conn = new PDO("pgsql:$conn_host;$conn_db;$conn_user;$conn_password") or die("1");
-    $stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log) VALUES (?,?,?,?,?,?,?,?,?,?)") or die("2");
-    $stmt->execute(array($ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log)) or die("3");
-    $id = $conn->lastInsertId();
-    echo "id " . ($enable_id_obfuscation ? obfuscateId($id) : $id);
-    $conn = null;
-} else die("-1");
+$conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port) or die("1");
+$p = $conn->prepare('SELECT id FROM speedtest_users WHERE `number` = ?');
+$p->bind_param('s', $__USER_NUMBER__);
+$p->execute();
+$p->bind_result($userid);
+$p->fetch();
+$p->close();
+$stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,userid) VALUES (?,?,?,?,?,?,?,?,?,?,?)") or die("2");
+$stmt->bind_param("sssssssssss", $ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $userid) or die("3");
+$stmt->execute() or die("4");
+$stmt->close() or die("5");
+$id = $conn->insert_id;
+echo "id " . ($enable_id_obfuscation ? obfuscateId($id) : $id);
+$conn->close() or die("6");

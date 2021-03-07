@@ -91,18 +91,7 @@ header('Pragma: no-cache');
                 window.location = location.protocol + "//" + location.host + location.pathname;
             </script><?php
                     } else {
-                        $conn = null;
-                        if ($db_type == "mysql") {
-                            $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
-                        } else if ($db_type == "sqlite") {
-                            $conn = new PDO("sqlite:$Sqlite_db_file");
-                        } else if ($db_type == "postgresql") {
-                            $conn_host = "host=$PostgreSql_hostname";
-                            $conn_db = "dbname=$PostgreSql_databasename";
-                            $conn_user = "user=$PostgreSql_username";
-                            $conn_password = "password=$PostgreSql_password";
-                            $conn = new PDO("pgsql:$conn_host;$conn_db;$conn_user;$conn_password");
-                        } else die();
+                        $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
                         ?>
             <form action="stats.php" method="GET"><input type="hidden" name="op" value="logout" /><input type="submit" value="Logout" /></form>
             <form action="stats.php" method="GET">
@@ -117,29 +106,19 @@ header('Pragma: no-cache');
                         if ($_GET["op"] == "id" && !empty($_GET["id"])) {
                             $id = $_GET["id"];
                             if ($enable_id_obfuscation) $id = deobfuscateId($id);
-                            if ($db_type == "mysql") {
-                                $q = $conn->prepare("SELECT speedtest_infos.id, `timestamp`, ip, ispinfo, ua, lang, dl, ul, ping, jitter, `log`, extra, `number`, `name`
+                            $q = $conn->prepare("SELECT speedtest_infos.id, `timestamp`, ip, ispinfo, ua, lang, dl, ul, ping, jitter, `log`, extra, `number`, `name`
 								   FROM speedtest_infos, speedtest_users
                                    WHERE speedtest_infos.id = ? AND speedtest_users.id = speedtest_infos.userid");
-                                $q->bind_param("i", $id);
-                                $q->execute();
-                                $q->store_result();
-                                $q->bind_result($id, $timestamp, $ip, $ispinfo, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $extra, $number, $name);
-                            } else if ($db_type == "sqlite" || $db_type == "postgresql") {
-                                $q = $conn->prepare("select id,timestamp,ip,ispinfo,ua,lang,dl,ul,ping,jitter,log,extra from speedtest_infos where id=?");
-                                $q->execute(array($id));
-                            } else die();
+                            $q->bind_param("i", $id);
+                            $q->execute();
+                            $q->store_result();
+                            $q->bind_result($id, $timestamp, $ip, $ispinfo, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $extra, $number, $name);
                         } else {
-                            if ($db_type == "mysql") {
-                                $q = $conn->prepare("SELECT speedtest_infos.id, `timestamp`, ip, ispinfo, ua, lang, dl, ul, ping, jitter, `log`, extra, `number`, `name`
+                            $q = $conn->prepare("SELECT speedtest_infos.id, `timestamp`, ip, ispinfo, ua, lang, dl, ul, ping, jitter, `log`, extra, `number`, `name`
                                     FROM speedtest_infos, speedtest_users WHERE speedtest_users.id = speedtest_infos.userid ORDER BY `timestamp` DESC LIMIT 0,100");
-                                $q->execute();
-                                $q->store_result();
-                                $q->bind_result($id, $timestamp, $ip, $ispinfo, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $extra, $number, $name);
-                            } else if ($db_type == "sqlite" || $db_type == "postgresql") {
-                                $q = $conn->prepare("select id,timestamp,ip,ispinfo,ua,lang,dl,ul,ping,jitter,log,extra from speedtest_infos order by timestamp desc limit 100");
-                                $q->execute();
-                            } else die();
+                            $q->execute();
+                            $q->store_result();
+                            $q->bind_result($id, $timestamp, $ip, $ispinfo, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $extra, $number, $name);
                         }
                         while (true) {
                             $id = null;
@@ -154,23 +133,7 @@ header('Pragma: no-cache');
                             $jitter = null;
                             $log = null;
                             $extra = null;
-                            if ($db_type == "mysql") {
-                                if (!$q->fetch()) break;
-                            } else if ($db_type == "sqlite" || $db_type == "postgresql") {
-                                if (!($row = $q->fetch())) break;
-                                $id = $row["id"];
-                                $timestamp = $row["timestamp"];
-                                $ip = $row["ip"];
-                                $ispinfo = $row["ispinfo"];
-                                $ua = $row["ua"];
-                                $lang = $row["lang"];
-                                $dl = $row["dl"];
-                                $ul = $row["ul"];
-                                $ping = $row["ping"];
-                                $jitter = $row["jitter"];
-                                $log = $row["log"];
-                                $extra = $row["extra"];
-                            } else die();
+                            if (!$q->fetch()) break;
             ?>
                 <table>
                     <tr>
