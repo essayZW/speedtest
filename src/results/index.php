@@ -4,14 +4,14 @@ $WATERMARK_TEXT="LibreSpeed";
 error_reporting(0);
 putenv('GDFONTPATH=' . realpath('.'));
 function tryFont($name){
-	$rp=realpath('.');
-	if(imageftbbox(12,0,$name,"M")[5]==0){
-		$name=$rp."/".$name.".ttf";
-		if(imageftbbox(12,0,$name,"M")[5]==0){
-			return null;
-		}
-	}
-	return $name;
+    $rp=realpath('.');
+    if(imageftbbox(12,0,$name,"M")[5]==0){
+        $name=$rp."/".$name.".ttf";
+        if(imageftbbox(12,0,$name,"M")[5]==0){
+            return null;
+        }
+    }
+    return $name;
 }
 function format($d){
     if($d<10) return number_format($d,2,".","");
@@ -81,38 +81,38 @@ if($enable_id_obfuscation) $id=deobfuscateId($id);
 $conn=null; $q=null;
 $ispinfo=null; $dl=null; $ul=null; $ping=null; $jit=null;
 if($db_type=="mysql"){
-	$conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
-	$q = $conn->prepare("select ispinfo,dl,ul,ping,jitter from speedtest_infos where id=?");
-	$q->bind_param("i",$id);
-	$q->execute();
-	$q->bind_result($ispinfo,$dl,$ul,$ping,$jit);
-	$q->fetch();
+    $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
+    $q = $conn->prepare("select ispinfo,dl,ul,ping,jitter from speedtest_infos where id=?");
+    $q->bind_param("i",$id);
+    $q->execute();
+    $q->bind_result($ispinfo,$dl,$ul,$ping,$jit);
+    $q->fetch();
 }else if($db_type=="sqlite"){
-	$conn = new PDO("sqlite:$Sqlite_db_file") or die();
-	$q=$conn->prepare("select ispinfo,dl,ul,ping,jitter from speedtest_infos where id=?") or die();
-	$q->execute(array($id)) or die();
-	$row=$q->fetch() or die();
-	$ispinfo=$row["ispinfo"];
-	$dl=$row["dl"];
-	$ul=$row["ul"];
-	$ping=$row["ping"];
-	$jit=$row["jitter"];
-	$conn=null;
+    $conn = new PDO("sqlite:$Sqlite_db_file") or die();
+    $q=$conn->prepare("select ispinfo,dl,ul,ping,jitter from speedtest_infos where id=?") or die();
+    $q->execute(array($id)) or die();
+    $row=$q->fetch() or die();
+    $ispinfo=$row["ispinfo"];
+    $dl=$row["dl"];
+    $ul=$row["ul"];
+    $ping=$row["ping"];
+    $jit=$row["jitter"];
+    $conn=null;
 }else if($db_type=="postgresql"){
     $conn_host = "host=$PostgreSql_hostname";
     $conn_db = "dbname=$PostgreSql_databasename";
     $conn_user = "user=$PostgreSql_username";
     $conn_password = "password=$PostgreSql_password";
     $conn = new PDO("pgsql:$conn_host;$conn_db;$conn_user;$conn_password") or die();
-	$q=$conn->prepare("select ispinfo,dl,ul,ping,jitter from speedtest_infos where id=?") or die();
-	$q->execute(array($id)) or die();
-	$row=$q->fetch() or die();
-	$ispinfo=$row["ispinfo"];
-	$dl=$row["dl"];
-	$ul=$row["ul"];
-	$ping=$row["ping"];
-	$jit=$row["jitter"];
-	$conn=null;
+    $q=$conn->prepare("select ispinfo,dl,ul,ping,jitter from speedtest_infos where id=?") or die();
+    $q->execute(array($id)) or die();
+    $row=$q->fetch() or die();
+    $ispinfo=$row["ispinfo"];
+    $dl=$row["dl"];
+    $ul=$row["ul"];
+    $ping=$row["ping"];
+    $jit=$row["jitter"];
+    $conn=null;
 }else die();
 
 $dl=format($dl);
@@ -123,9 +123,9 @@ $jit=format($jit);
 $ispinfo=json_decode($ispinfo,true)["processedString"];
 $dash=strpos($ispinfo,"-");
 if(!($dash===FALSE)){
-	$ispinfo=substr($ispinfo,$dash+2);
-	$par=strrpos($ispinfo,"(");
-	if(!($par===FALSE)) $ispinfo=substr($ispinfo,0,$par);
+    $ispinfo=substr($ispinfo,$dash+2);
+    $par=strrpos($ispinfo,"(");
+    if(!($par===FALSE)) $ispinfo=substr($ispinfo,0,$par);
 }else $ispinfo="";
 
 $dlBbox=imageftbbox($FONT_LABEL_SIZE_BIG,0,$FONT_LABEL,$DL_TEXT);
@@ -160,5 +160,3 @@ imagefilledrectangle($im, 0, $SEPARATOR_Y, $WIDTH, $SEPARATOR_Y, $SEPARATOR_COLO
 header('Content-Type: image/png');
 imagepng($im);
 imagedestroy($im);
-
-?>

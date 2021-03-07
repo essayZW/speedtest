@@ -220,4 +220,3 @@ if (isset($_GET["isp"])) {
         'accessMethod' => null
     ]);
 }
-?>
