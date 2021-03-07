@@ -40,42 +40,50 @@ if(isset($_GET['all'])) {
             case 'time':
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE `timestamp` LIKE ?");
                 $q->bind_param('s', $search_data);
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND `timestamp` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
+                $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number` FROM speedtest_infos, speedtest_users
+                                    WHERE speedtest_users.id = speedtest_infos.userid
+                                    AND `timestamp` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
             case 'unumber' :
-                $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE unumber LIKE ?");
+                $q = $conn->prepare("SELECT count(*) FROM speedtest_infos, speedtest_users WHERE speedtest_users.id = speedtest_infos.userid AND `number` LIKE ?");
                 $q->bind_param('s', $search_data);
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number AND unumber LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
+                $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number` FROM speedtest_infos, speedtest_users
+                                    WHERE speedtest_users.id = speedtest_infos.userid 
+                                    AND `number` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
             case 'ip' :
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE ip LIKE ?");
                 $q->bind_param('s', $search_data);
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
-                                    FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number`
+                                    FROM speedtest_infos, speedtest_users 
+                                    WHERE speedtest_users.id = speedtest_infos.userid
                                     AND ip LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
             case 'name':
-                $q = $conn->prepare("SELECT count(*) FROM speedtest_infos WHERE ip LIKE ?");
+                $q = $conn->prepare("SELECT count(*) FROM speedtest_infos, speedtest_users WHERE speedtest_users.id = speedtest_infos.userid AND `name` LIKE ?");
                 $q->bind_param('s', $search_data);
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
-                                    FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number`
+                                    FROM speedtest_infos, speedtest_users
+                                    WHERE speedtest_users.id = speedtest_infos.userid
                                     AND `name` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("sii", $search_data, $start, $length);
                 break;
             default:
                 $q = $conn->prepare("SELECT count(*) FROM speedtest_infos");
-                $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
-                                    FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+                $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number`
+                                    FROM speedtest_infos, speedtest_users
+                                    WHERE speedtest_users.id = speedtest_infos.userid 
                                     AND `timestamp` LIKE ? ORDER BY `timestamp` DESC LIMIT ?,? ");
                 $p->bind_param("ii", $start, $length);
         };
     }
     else {
-        $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip, unumber
-                            FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
+        $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number`
+                            FROM speedtest_infos, speedtest_users
+                            WHERE speedtest_users.id = speedtest_infos.userid
                             ORDER BY `timestamp` DESC LIMIT ?,? ");
         $p->bind_param("ii", $start, $length);
         $q = $conn->prepare("SELECT count(*) FROM speedtest_infos");
@@ -116,12 +124,13 @@ if(isset($_GET['single'])) {
             'info' => 'need info'
         ]));
     }
-    $p = $conn->prepare("SELECT `name`, id, `timestamp`, dl, ul, ping, jitter, ip
-                        FROM speedtest_infos, speedtest_users WHERE speedtest_infos.unumber = speedtest_users.number
-                        AND id = ?");
+    $p = $conn->prepare("SELECT `name`, speedtest_infos.id, `timestamp`, dl, ul, ping, jitter, ip, `number`
+                        FROM speedtest_infos, speedtest_users
+                        WHERE speedtest_users.id = speedtest_infos.userid
+                        AND speedtest_infos.id = ?");
     $p->bind_param('i', $id);
     $p->execute();
-    $p->bind_result($id, $time, $dl, $ul, $ping, $jitter, $ip, $unumber);
+    $p->bind_result($name, $id, $time, $dl, $ul, $ping, $jitter, $ip, $unumber);
     $p->fetch();
     die(json_encode(['ip' => $ip,
         'id' => $id,

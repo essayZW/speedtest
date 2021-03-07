@@ -74,7 +74,9 @@ switch ($stepFlag) {
         $step = 3600 * 24;
         break;
 }
-$p = $conn->prepare("SELECT ul, dl, ping, jitter, unumber, `timestamp` FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ?");
+$p = $conn->prepare("SELECT ul, dl, ping, jitter, `number`, `timestamp` FROM speedtest_infos, speedtest_users 
+                    WHERE speedtest_users.id = speedtest_infos.userid
+                    AND `timestamp` BETWEEN ? AND ?");
 $p->bind_param('ss', $startTime, $endTime);
 $p->execute();
 $p->store_result();

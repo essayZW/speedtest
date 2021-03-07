@@ -41,8 +41,14 @@ header('Pragma: no-cache');
 
 if($db_type=="mysql"){
     $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port) or die("1");
-    $stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,unumber) VALUES (?,?,?,?,?,?,?,?,?,?,?)") or die("2");
-    $stmt->bind_param("sssssssssss",$ip,$ispinfo,$extra,$ua,$lang,$dl,$ul,$ping,$jitter,$log,$__USER_NUMBER__) or die("3");
+    $p = $conn->prepare('SELECT id FROM speedtest_users WHERE `number` = ?');
+    $p->bind_param('s', $__USER_NUMBER__);
+    $p->execute();
+    $p->bind_result($userid);
+    $p->fetch();
+    $p->close();
+    $stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,userid) VALUES (?,?,?,?,?,?,?,?,?,?,?)") or die("2");
+    $stmt->bind_param("sssssssssss",$ip,$ispinfo,$extra,$ua,$lang,$dl,$ul,$ping,$jitter,$log,$userid) or die("3");
 	$stmt->execute() or die("4");
     $stmt->close() or die("5");
 	$id=$conn->insert_id;

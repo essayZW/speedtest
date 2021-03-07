@@ -1,5 +1,6 @@
 <?php
     require_once(__DIR__ .  '/../utils/validation.php');
+    error_reporting(0);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,7 +51,9 @@
             die('<h2>数据查询失败</h2>');
         }
         $conn->query("set time_zone = '+8:00'");
-        $stmp = $conn->prepare('SELECT id,timestamp,ip,dl,ul,ping,jitter FROM speedtest_infos WHERE unumber=?');
+        $stmp = $conn->prepare('SELECT speedtest_infos.id,timestamp,ip,dl,ul,ping,jitter FROM speedtest_infos, speedtest_users 
+                                WHERE speedtest_users.id = speedtest_infos.userid
+                                AND `number`=?');
         $stmp->bind_param('s', $__USER_NUMBER__);
         $stmp->execute();
         $stmp->bind_result($id, $time, $ip, $dl, $ul, $ping, $jitter);

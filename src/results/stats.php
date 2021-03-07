@@ -96,7 +96,9 @@ if($stats_password=="PASSWORD"){
 			$id=$_GET["id"];
 			if($enable_id_obfuscation) $id=deobfuscateId($id);
 			if($db_type=="mysql"){
-				$q=$conn->prepare("select id,timestamp,ip,ispinfo,ua,lang,dl,ul,ping,jitter,log,extra, unumber, speedtest_users.name as name from speedtest_infos, speedtest_users where id=? and speedtest_users.number = speedtest_infos.unumber");
+				$q=$conn->prepare("SELECT speedtest_infos.id, `timestamp`, ip, ispinfo, ua, lang, dl, ul, ping, jitter, `log`, extra, `number`, `name`
+								   FROM speedtest_infos, speedtest_users
+                                   WHERE speedtest_infos.id = ? AND speedtest_users.id = speedtest_infos.userid");
 				$q->bind_param("i",$id);
 				$q->execute();
 				$q->store_result();
@@ -107,7 +109,8 @@ if($stats_password=="PASSWORD"){
 			} else die();
 		}else{
 			if($db_type=="mysql"){
-				$q=$conn->prepare("select id,timestamp,ip,ispinfo,ua,lang,dl,ul,ping,jitter,log,extra, number, speedtest_users.name as name from speedtest_infos, speedtest_users where speedtest_users.number=speedtest_infos.unumber order by timestamp desc limit 0,100");
+				$q=$conn->prepare("SELECT speedtest_infos.id, `timestamp`, ip, ispinfo, ua, lang, dl, ul, ping, jitter, `log`, extra, `number`, `name`
+                                    FROM speedtest_infos, speedtest_users WHERE speedtest_users.id = speedtest_infos.userid ORDER BY `timestamp` DESC LIMIT 0,100");
 				$q->execute();
 				$q->store_result();
 				$q->bind_result($id,$timestamp,$ip,$ispinfo,$ua,$lang,$dl,$ul,$ping,$jitter,$log,$extra, $number, $name);
