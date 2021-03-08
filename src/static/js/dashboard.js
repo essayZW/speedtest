@@ -331,6 +331,30 @@ let config = {
         let butt = document.querySelector('#pieinfoChartButt');
         butt.click();
       }
+    },
+    {
+      path: '/settings/cidr',
+      name: 'cidrSettings',
+      pageHeader: {
+        info: '通过CIDR绑定IP网段与接入方式、接入地点、ISP等信息的对应关系,不再此列表中的IP将会送往公网API查询相关信息',
+        title: 'CIDR列表设置',
+        pageTitle: 'CIDR列表设置'
+      },
+      callback: () => {
+
+      }
+    },
+    {
+      path: '/settings/testpoints',
+      name: 'testPointsSettings',
+      pageHeader: {
+        info: '设置系统支持的测速节点及具体节点信息设置',
+        title: '测速节点设置',
+        pageTitle: '测速节点设置'
+      },
+      callback: () => {
+
+      }
     }
   ]
 }
