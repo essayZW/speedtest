@@ -52,6 +52,20 @@ class IpCIDR {
             $this->range = $this->getIPv6CIDRRange();
         }
     }
+    /**
+     * 验证某个 cidr字符串是否合法
+     */
+    static public function validate($cidr, &$message) {
+        try {
+            $temp = new IpCIDR($cidr);
+            $message = 'ok';
+            return true;
+        }
+        catch (Exception $e) {
+            $message = $e->getMessage();
+            return false;
+        } 
+    }
 
     /**
      * 得到当前的CIDR所表示的是IPv4还是IPv6
@@ -236,6 +250,15 @@ class IpCIDR {
 // $ipv6 = new IpCIDR('::2001:da8:ff3a:c88e', 119);
 // var_dump($ipv6->getRange());
 // var_dump($ipv6->isIpInRange('0000:0000:0000:0000:2001:0da8:ff3a:c8ff'));
+// var_dump(IpCIDR::validate('10.10.1.32/9', $message));
+// var_dump($message);
+// var_dump(IpCIDR::validate('10.10.1./9', $message));
+// var_dump($message);
+// var_dump(IpCIDR::validate('test', $message));
+// var_dump($message);
+// var_dump(IpCIDR::validate('::1', $message));
+// var_dump(IpCIDR::validate('::1/130', $message));
+// var_dump($message);
 
 
 

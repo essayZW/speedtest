@@ -3,6 +3,7 @@
  * 该文件返回指定的一段时间内的测速平均数据
  */
 include_once("./init.php");
+needAdmin();
 try {
     $startTime = get($_GET, 'start_time');
     if ($startTime == null) $startTime = date("Y-m-d", strtotime("-0 day")) . ' 0:0:0';

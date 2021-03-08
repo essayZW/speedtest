@@ -19,6 +19,7 @@
  * description: 是否在返回数据中携带具体的测速记录数据
  */
 include_once("./init.php");
+needAdmin();
 try {
     $startTime = get($_GET, 'start_time');
     if ($startTime == null) $startTime = date("Y-m-d", strtotime("-6 day")) . ' 0:0:0';

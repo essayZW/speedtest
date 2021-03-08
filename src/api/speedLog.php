@@ -29,7 +29,7 @@
  * description: 返回单个数据时的数据ID
  */
 include_once("./init.php");
-
+needAdmin();
 if(isset($_GET['all'])) {
     $start = get($_GET, 'start');
     if($start == null) $start = 0;
