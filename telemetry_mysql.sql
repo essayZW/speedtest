@@ -32,7 +32,7 @@ CREATE TABLE `speedtest_cidrinfo` (
 
 LOCK TABLES `speedtest_cidrinfo` WRITE;
 /*!40000 ALTER TABLE `speedtest_cidrinfo` DISABLE KEYS */;
-INSERT INTO `speedtest_cidrinfo` VALUES (1,'::1/128',NULL,NULL,'localhost IPv6 access',NULL),(2,'fe80::/10',NULL,NULL,'link-local IPv6 access',NULL),(3,'127.0.0.0/8',NULL,NULL,'localhost IPv4 access',NULL),(4,'10.0.0.0/8',NULL,NULL,'localhost IPv4 access',NULL),(5,'172.16.0.0/12',NULL,NULL,'localhost IPv4 access',NULL),(6,'192.168.0.0/16',NULL,NULL,'localhost IPv4 access',NULL),(7,'169.254.0.0/16',NULL,NULL,'link-local IPv4 access',NULL);
+INSERT INTO `speedtest_cidrinfo` VALUES (1,'::1/128',NULL,NULL,'localhost IPv6 access',NULL),(2,'fe80::/10',NULL,NULL,'link-local IPv6 access',NULL),(3,'127.0.0.0/8',NULL,NULL,'localhost IPv4 access',NULL),(4,'10.0.0.0/8',NULL,NULL,'private IPv4 access',NULL),(5,'172.16.0.0/12',NULL,NULL,'private IPv4 access',NULL),(6,'192.168.0.0/16',NULL,NULL,'private IPv4 access',NULL),(7,'169.254.0.0/16',NULL,NULL,'link-local IPv4 access',NULL);
 /*!40000 ALTER TABLE `speedtest_cidrinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 
