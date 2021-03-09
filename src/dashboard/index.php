@@ -13,12 +13,13 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/AdminLTE.min.css">
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <link rel="stylesheet" href="/static/css/skin-blue.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-editable.css">
     <link rel="stylesheet" href="/static/css/daterangepicker.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
@@ -47,7 +48,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
             <section class="sidebar">
                 <div class="user-panel">
                     <div class="pull-left image">
-                        <img src="/static/images/user.jpg" class="img-circle" alt="User Image">
+                        <img src="/static/img/user.jpg" class="img-circle" alt="User Image">
                     </div>
                     <div class="pull-left info">
                         <p>admin</p>
@@ -61,6 +62,19 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                     </li>
                     <li>
                         <a href="#/history"><i class="fa fa-sticky-note-o"></i><span>测速记录</span></a>
+                    </li>
+                    <li class="treeview">
+                        <a href="javascript:;">
+                            <i class="fa fa-cog"></i>
+                            <span>系统设置</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="#/settings/cidr"><i class="fa"><strong>IP</strong></i>CIDR列表</a></li>
+                            <li><a href="#/settings/testpoints"><i class="fa fa-server"></i>测速节点</a></li>
+                        </ul>
                     </li>
                     <li class="treeview">
                         <a href="javascript:;">
@@ -268,11 +282,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="box box-primary">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">测速历史记录</h3>
+                                    <div class="box-tools" id="tableToolArea"></div>
                                 </div>
                                 <div class="box-body">
                                     <table id="historyDataTable"></table>
                                 </div>
-                                <div class="box-footer" id="tableToolArea"></div>
                             </div>
                         </div>
                     </div>
@@ -572,6 +586,27 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                     </div>
                 </div>
+                <div class="page" data-hash="/settings/cidr">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><span>CIDR列表</span><small>点击字段可修改内容</small></h3>
+                                    <div class="box-tools" id="cidrTableToolArea"></div>
+                                </div>
+                                <div class="box-body">
+                                    <table id="cidrTable" class="table-event-handler"></table>
+                                </div>
+                                <div class="box-footer">
+                                    <div class="pull-right"><button class="btn btn-primary" id="showCidrInfoModal">添加CIDR信息</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page" data-hash="/settings/testpoints">
+                    <div class="row">测速节点设置</div>
+                </div>
             </div>
         </div>
         <div class="main-footer">
@@ -597,12 +632,55 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
         </div>
     </div>
     <!-- message modal end -->
+    <!-- CIDR info modal start -->
+    <div class="modal fade" id="cidrModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">CIDR信息填写</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label for="cidrInput" class="required">CIDR</label>
+                            <input type="text" class="form-control" id="cidrInput" placeholder="形如10.0.0.0/8" name="cidr" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrPositionInput">接入位置</label></label>
+                            <input type="text" class="form-control" id="cidrPositionInput" placeholder="CIDR对应的IP地址的接入地址，可以为空" name="position">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrAccessMethodInput">接入方式</label>
+                            <input type="text" class="form-control" id="cidrAccessMethodInput" placeholder="CIDR对应的IP地址的接入方式，可以为空" name="accessMethod">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrIspInput">ISP</label>
+                            <input type="text" class="form-control" id="cidrIspInput" placeholder="CIDR对应的ISP, 可以为空" name="isp">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrIspInfoInput">ISP信息</label>
+                            <input type="text" class="form-control" id="cidrIspInfoInput" placeholder="详细的ISP信息，可以为空" name="ispinfo">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="addCidrInfo">添加</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CIDR info modal end-->
 
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-table-editable.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-editable.min.js"></script>
     <script src="/static/js/chart.min.js"></script>
     <script src="/static/js/palette.js"></script>
     <script src="/static/js/adminlte.min.js"></script>

@@ -14,7 +14,7 @@
  * param: position
  * description: 某个 cidr 所表示的网段在网络部署中的部署位置信息
  * 
- * param: access_method
+ * param: accessMethod
  * description: 某个 cidr 所表示的网段在网络部署中的接入方式，一般指的是有线还是无线接入
  * 
  * param: isp
@@ -88,7 +88,7 @@ switch ($operation) {
     case 'insert':
         $cidr = get($_POST, 'cidr');
         $position = get($_POST, 'position', '');
-        $accessMethod = get($_POST, 'access_method', '');
+        $accessMethod = get($_POST, 'accessMethod', '');
         $isp = get($_POST, 'isp', '');
         $ispinfo = get($_POST, 'ispinfo', '');
 
@@ -140,7 +140,7 @@ switch ($operation) {
         $id = get($_POST, 'id');
         $cidr = get($_POST, 'cidr');
         $position = get($_POST, 'position', '');
-        $accessMethod = get($_POST, 'access_method', '');
+        $accessMethod = get($_POST, 'accessMethod', '');
         $isp = get($_POST, 'isp', '');
         $ispinfo = get($_POST, 'ispinfo', '');
 

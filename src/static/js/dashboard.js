@@ -19,13 +19,19 @@ Date.prototype.Format = function (fmt) { //author: meizz
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
   return fmt;
 }
+/**
+ * 显示消息到modal中 
+ * @param string title 
+ * @param string message 
+ */
 function alertModal(title, message) {
   $('#alertModalLabel').html(title);
   $('#alertModalMessage').html(message);
   $('#alertModal').modal('show');
 }
 window.router = new Router();
-window.charts = []
+window.charts = [];
+window.editableTableData = {};
 let config = {
   routes: [
     {
@@ -341,7 +347,84 @@ let config = {
         pageTitle: 'CIDR列表设置'
       },
       callback: () => {
-
+        const TableId = 'cidrTable';
+        $(`#${TableId}`).bootstrapTable({
+          url: '/api/cidr.php?operation=select',
+          sidePagination: true,
+          pageSize: 10,
+          pageList: [10, 25, 50, 100],
+          showRefresh: true,
+          pagination: true,
+          buttonsToolbar: '#cidrTableToolArea',
+          uniqueId: 'id',
+          columns: [
+            {
+              field: 'cidr',
+              title: 'CIDR',
+              editable: {
+                type: 'text',
+                title: '新的"CIDR"值',
+                validate: (v) => {
+                  if (!v.length) return 'CIDR不能为空';
+                }
+              }
+            },
+            {
+              field: 'position',
+              title: '接入地点',
+              editable: {
+                type: 'text',
+                title: '新的"接入地点"值',
+              }
+            },
+            {
+              field: 'accessMethod',
+              title: '接入方式',
+              editable: {
+                type: 'text',
+                title: '新的"接入方法"值'
+              }
+            },
+            {
+              field: 'isp',
+              title: '互联网服务供应商',
+              editable: {
+                type: 'text',
+                title: '新的"互联网服务供应商"值'
+              }
+            },
+            {
+              field: 'ispinfo',
+              title: '互联网服务供应商信息',
+              editable: {
+                type: 'text',
+                title: '新的"互联网服务供应商信息"值'
+              }
+            },
+            {
+              title: '操作',
+              formatter: (value, row, index) => {
+                return `
+                <button class="btn btn-success table-save" data-api="/api/cidr.php" data-tableid="${TableId}" data-index="${index}">保存</button>
+                <button class="btn btn-danger table-delete" data-api="/api/cidr.php" data-tableid="${TableId}" data-index="${index}">删除</button>
+                <button class="btn btn-primary table-restore" data-api="/api/cidr.php" data-tableid="${TableId}" data-index="${index}">恢复</button>
+                `;
+              }
+            }
+          ],
+          responseHandler: (res) => {
+            // 将null转化为字符串 Unknown
+            for (let i = 0; i < res.length; i ++) {
+              for (let key in res[i]) {
+                if (res[i][key] == null || res[i][key] == '') {
+                  res[i][key] = 'Unknown';
+                }
+              }
+            }
+            window.editableTableData[TableId] = JSON.parse(JSON.stringify(res));
+            return res;
+          }
+        });
       }
     },
     {
@@ -419,6 +502,7 @@ $('.date-range-picker').daterangepicker({
   showCustomRangeLabel: false,
   alwaysShowCalendars: true
 });
+// 因为不止一个时间范围选择器，所以遍历挨个进行初始化
 $allDateRangePicker = $('.date-range-picker');
 for (let i = 0; i < $allDateRangePicker.length; i++) {
   $now = $($allDateRangePicker[i]);
@@ -426,6 +510,8 @@ for (let i = 0; i < $allDateRangePicker.length; i++) {
   $now.data('daterangepicker').setEndDate(moment().endOf('day'))
 }
 
+
+// 测速数据折线图页面，搜索时重新拉取数据
 let butt = document.querySelector('#searchButt');
 butt.addEventListener('click', (e) => {
   $('#tableToolArea button[name=refresh]').click();
@@ -483,6 +569,8 @@ butt.addEventListener('click', (e) => {
   e.preventDefault();
 });
 
+// 饼图页面的按钮事件注册
+// 重新划分区间时重新拉取数据绘制饼图
 let divisionButts = document.querySelectorAll('.pie-division-butt');
 for (let i = 0; i < divisionButts.length; i++) {
   divisionButts[i].addEventListener('click', () => {
@@ -547,6 +635,156 @@ butt.addEventListener('click', (e) => {
   e.preventDefault();
 });
 
+
+// 由于表格编辑按钮后创建
+// 因此需要通过事件委托添加点击事件
+// 委托事件到.table-event-handler元素上
+eventDelegation('.table-event-handler', 'button.table-save', 'click', function(e, _this) {
+  let targetId = _this.dataset.tableid;
+  let tableIndex = _this.dataset.index;
+  let currentTableData = $(`#${targetId}`).bootstrapTable('getData', false);
+  let updatedData = currentTableData[tableIndex];
+  // 在没有修改的时候应该拒绝发送修改的API请求
+  let changeFlag = false;
+  for (let key in updatedData) {
+    if (updatedData[key] != window.editableTableData[targetId][tableIndex][key]) {
+      changeFlag = true;
+      break;
+    }
+  }
+  if (!changeFlag) {
+    alertModal('修改失败', '没有任何改动');
+    return;
+  }
+  let urlParams = new URLSearchParams();
+  for (let key in updatedData) {
+    urlParams.append(key, updatedData[key]);
+  }
+  axios.post(_this.dataset.api, urlParams, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    params: {
+      operation: 'update'
+    }
+  }).then((rep) => {
+    let repData = rep.data;
+    if (repData.status) {
+      alertModal('修改成功', '数据修改成功');
+      // 只备份当前保存的这一行数据
+      // 因为若先修改多行，再点保存，其他行的修改未提交，不算已经修改
+      window.editableTableData[targetId][tableIndex] = JSON.parse(JSON.stringify(currentTableData[tableIndex]));
+    }
+    else {
+      alertModal('修改失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
+    }
+  }).catch((error) => {
+    console.error(error);
+    alertModal('修改失败', '发生未知错误');
+  });  
+});
+
+eventDelegation('.table-event-handler', 'button.table-delete', 'click', (e, _this) => {
+  let targetId = _this.dataset.tableid;
+  let tableIndex = _this.dataset.index;
+  let currentTableData = $(`#${targetId}`).bootstrapTable('getData', false);
+  let deleteId = currentTableData[tableIndex].id;
+  let queryParams = new URLSearchParams();
+  queryParams.append('id', deleteId);
+  axios.post(_this.dataset.api, queryParams, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    params: {
+      operation: 'delete'
+    }
+  }).then((rep) => {
+    let repData = rep.data;
+    if (repData.status) {
+      alertModal('删除成功', '删除成功');
+      $(`#${targetId}`).bootstrapTable('refresh');
+    }
+    else {
+      alertModal('修改失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
+    }
+  }).catch((error) => {
+    console.error(error);
+    alertModal('修改失败', '发生未知错误');
+  });
+});
+
+eventDelegation('.table-event-handler', 'button.table-restore', 'click', (e, _this) => {
+  let targetId = _this.dataset.tableid;
+  let tableIndex = _this.dataset.index;
+  let currentTableData = $(`#${targetId}`).bootstrapTable('getData', false);
+  let cirdId = currentTableData[tableIndex].id;
+  $(`#${targetId}`).bootstrapTable('removeByUniqueId', cirdId);
+  $(`#${targetId}`).bootstrapTable('insertRow', {
+    index: tableIndex,
+    row: JSON.parse(JSON.stringify(window.editableTableData[targetId][tableIndex]))
+  });
+});
+
+let showCidrModalButton = document.querySelector('#showCidrInfoModal');
+showCidrModalButton.addEventListener('click', () => {
+  let allCidrInfoInputs = document.querySelectorAll('#cidrModal input');
+  for (let i = 0; i < allCidrInfoInputs.length; i ++) {
+    allCidrInfoInputs[i].value = '';
+  }
+  $('#cidrModal').modal('show');
+});
+
+let cidrAddbutton = document.querySelector('#addCidrInfo');
+cidrAddbutton.addEventListener('click', () => {
+  let allCidrInfoInputs = document.querySelectorAll('#cidrModal input');
+  let urlParams = new URLSearchParams();
+  for (let i = 0; i < allCidrInfoInputs.length; i ++) {
+    urlParams.append(allCidrInfoInputs[i].getAttribute('name'), allCidrInfoInputs[i].value);
+    if (allCidrInfoInputs[i].getAttribute('name') == 'cidr' && allCidrInfoInputs[i].value.length == 0) {
+      return;
+    }
+  }
+  axios.post('/api/cidr.php', urlParams, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    params: {
+      operation: 'insert'
+    }
+  }).then((rep) => {
+    let repData = rep.data;
+    if (repData.status) {
+      $('#cidrTable').bootstrapTable('refresh');
+    }
+    else {
+      alertModal('修改失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
+    }
+  }).catch((error) => {
+    console.log(error);
+    alertModal('添加失败', '添加失败请稍候重试!');
+  }).finally(() => {
+    $('#cidrModal').modal('hide');
+  });
+});
+
+/**
+ * 注册事件委托
+ * @param string eventHandlerSelector 事件的接收者
+ * @param function targetElementSelector 事件的委托者
+ * @param string eventType 需要委托的事件名
+ * @param function eventHandlerMethod 事件的处理函数
+ */
+function eventDelegation(eventHandlerSelector, targetElementSelector, eventType, eventHandlerMethod) {
+  let eventHandlers = document.querySelectorAll(eventHandlerSelector);
+  for (let i = 0; i < eventHandlers.length; i ++) {
+    let eventHandler = eventHandlers[i];
+    eventHandler.addEventListener(eventType, (e) => {
+      if (e.target.matches(targetElementSelector)) {
+        eventHandlerMethod ? eventHandlerMethod(e, e.target) : null;
+      }
+    });
+  }
+}
 /**
  * 根据数据初始化一个饼图
  * @param array division 区间划分数组
