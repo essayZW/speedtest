@@ -85,10 +85,8 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="#/chart/useinfo"><i class="fa fa-circle-o"></i>测速人数与次数</a></li>
-                            <li><a href="#/chart/uldlinfo"><i class="fa fa-circle-o"></i>上传下载速度</a></li>
-                            <li><a href="#/chart/pjinfo"><i class="fa fa-circle-o"></i>ping和jitter</a></li>
-                            <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比详情</a></li>
+                            <li><a href="#/chart/line"><i class="fa fa-circle-o"></i>测速情况变化曲线图</a></li>
+                            <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比饼状图</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -102,6 +100,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                 </h1>
             </div>
             <div id="routerView" class="content">
+                <!-- 首页 -->
                 <div class="page" data-hash="/index">
                     <div class="row">
                         <div class="col-lg-6">
@@ -250,6 +249,8 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </section>
                     </div>
                 </div>
+                <!-- 首页结束 -->
+                <!-- 测速历史查看页面 -->
                 <div class="page" data-hash="/history">
                     <div class="row">
                         <form role="form" class="col-lg-6 form-inline">
@@ -291,7 +292,9 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                     </div>
                 </div>
-                <div class="page" data-hash="/chart/useinfo">
+                <!-- 测速历史查看页面结束 -->
+                <!-- 折线图页面 -->
+                <div class="page" data-hash="/chart/line">
                     <div class="row">
                         <form role="form" class="col-lg-12 form-inline">
                             <div class="form-group">
@@ -300,12 +303,12 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right date-range-picker" id="useinfoDatePicker">
+                                    <input type="text" class="form-control pull-right date-range-picker" id="lineChartDatePicker">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>时间步长:</label>
-                                <select class="form-control" id="useinfoStepSelector">
+                                <select class="form-control" id="lineChartStepSelector">
                                     <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
@@ -322,7 +325,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-3">
                             <div class="small-box bg-green">
                                 <div class="inner">
-                                    <h3 id="useinfoUserNum">0</h3>
+                                    <h3 id="lineChartUserNum">0</h3>
                                     <p>测速人数</p>
                                 </div>
                                 <div class="icon">
@@ -334,7 +337,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-3">
                             <div class="small-box bg-green">
                                 <div class="inner">
-                                    <h3 id="useinfoTestNum">0</h3>
+                                    <h3 id="lineChartTestNum">0</h3>
                                     <p>测速次数</p>
                                 </div>
                                 <div class="icon">
@@ -348,131 +351,24 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <i class="fa fa-area-chart"></i>统计图
-                                </div>
-                                <div class="box-body">
-                                    <canvas id="useinfoChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page" data-hash="/chart/uldlinfo">
-                    <div class="row">
-                        <form role="form" class="col-lg-12 form-inline">
-                            <div class="form-group">
-                                <label>数据时间范围:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-clock-o"></i>
+                                    <h3 class="box-title"><i class="fa fa-area-chart"></i>测速人数以及每人测速次数统计图</h3>
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector=".useinfoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector=".useinfoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
                                     </div>
-                                    <input type="text" class="form-control pull-right date-range-picker" id="uldlinfoDatePicker">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>时间步长:</label>
-                                <select class="form-control" id="uldlinfoStepSelector">
-                                    <option value="single">一条</option>
-                                    <option value="hour">一小时</option>
-                                    <option value="day" selected>一天</option>
-                                    <option value="week">一周</option>
-                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-primary" id="uldlinfoChartButt">确认</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="uldlinfoUserNum">0</h3>
-                                    <p>测速人数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="person-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="uldlinfoTestNum">0</h3>
-                                    <p>测速次数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="speedometer-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="box box-primary">
-                                <div class="box-header with-border">
-                                    <i class="fa fa-area-chart"></i>统计图
                                 </div>
                                 <div class="box-body">
-                                    <canvas id="uldlinfoChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page" data-hash="/chart/pjinfo">
-                    <div class="row">
-                        <form role="form" class="col-lg-12 form-inline">
-                            <div class="form-group">
-                                <label>数据时间范围:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-clock-o"></i>
+                                    <div class="col-lg-10 col-lg-offset-1 useinfoChartArea" data-size="10">
+                                        <canvas id="useinfoChart"></canvas>
                                     </div>
-                                    <input type="text" class="form-control pull-right date-range-picker" id="pjinfoDatePicker">
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label>时间步长:</label>
-                                <select class="form-control" id="pjinfoStepSelector">
-                                    <option value="single">一条</option>
-                                    <option value="hour">一小时</option>
-                                    <option value="day" selected>一天</option>
-                                    <option value="week">一周</option>
-                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-primary" id="pjinfoChartButt">确认</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="pjinfoUserNum">0</h3>
-                                    <p>测速人数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="person-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="pjinfoTestNum">0</h3>
-                                    <p>测速次数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="speedometer-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
                             </div>
                         </div>
                     </div>
@@ -480,15 +376,55 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <i class="fa fa-area-chart"></i>统计图
+                                    <h3 class="box-title"><i class="fa fa-area-chart"></i><span>测速下载和上传速度统计图</span></h3>
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector=".uldlinfoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector=".uldlinfoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="box-body">
-                                    <canvas id="pjinfoChart"></canvas>
+                                    <div class="col-lg-10 col-lg-offset-1 uldlinfoChartArea" data-size="10">
+                                        <canvas id="uldlinfoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><i class="fa fa-area-chart"></i>测速ping和jitter统计图</h3>
+                                    <div class="pull-right box-tools">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector=".pjinfoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector=".pjinfoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1 pjinfoChartArea" data-size="10">
+                                        <canvas id="pjinfoChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- 折线图页面结束 -->
+                <!-- 饼状图页面 -->
                 <div class="page" data-hash="/chart/pie">
                     <div class="row">
                         <form role="form" class="col-lg-12 form-inline">
@@ -586,27 +522,32 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                     </div>
                 </div>
+                <!-- 饼状图页面结束 -->
+                <!-- CIDR列表设置页面 -->
                 <div class="page" data-hash="/settings/cidr">
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><span>CIDR列表</span><small>点击字段可修改内容</small></h3>
-                                    <div class="box-tools" id="cidrTableToolArea"></div>
+                                    <div class="box-tools pull-right">
+                                        <div class="pull-right" id="cidrTableToolArea"></div>
+                                        <div class="pull-right"><button class="btn btn-primary" id="showCidrInfoModal">添加CIDR信息</button></div>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <table id="cidrTable" class="table-event-handler"></table>
-                                </div>
-                                <div class="box-footer">
-                                    <div class="pull-right"><button class="btn btn-primary" id="showCidrInfoModal">添加CIDR信息</button></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- CIDR列表设置页面结束 -->
+                <!-- 测速节点设置页面 -->
                 <div class="page" data-hash="/settings/testpoints">
                     <div class="row">测速节点设置</div>
                 </div>
+                <!-- 测速节点设置页面结束 -->
             </div>
         </div>
         <div class="main-footer">

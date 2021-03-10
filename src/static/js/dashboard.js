@@ -287,41 +287,15 @@ let config = {
       }
     },
     {
-      path: '/chart/useinfo',
-      name: 'userAndTestChart',
+      path: '/chart/line',
+      name: 'lineChart',
       pageHeader: {
-        info: '使用人数以及测速次数详情统计图表',
-        title: '使用情况统计图',
-        pageTitle: '使用详情图表'
+        info: '一段时间内测速人数、每人测速次数、测速上传下载速度、测速ping和测速jitter变化折线图',
+        title: '测速变化趋势',
+        pageTitle: '测速变化趋势'
       },
       callback: () => {
         let butt = document.querySelector("#useinfoChartButt");
-        butt.click();
-      }
-    },
-    {
-      path: '/chart/uldlinfo',
-      name: 'uldlChart',
-      pageHeader: {
-        info: '下载速度和上传速度测速详情统计表',
-        title: '测速速度统计表',
-        pageTitle: '测速速度统计表'
-      },
-      callback: () => {
-        let butt = document.querySelector("#uldlinfoChartButt");
-        butt.click();
-      }
-    },
-    {
-      path: '/chart/pjinfo',
-      name: 'pjChart',
-      pageHeader: {
-        info: 'ping和jitter测速详情统计表',
-        title: '测速延迟统计表',
-        pageTitle: '测速延迟统计表'
-      },
-      callback: () => {
-        let butt = document.querySelector("#pjinfoChartButt");
         butt.click();
       }
     },
@@ -520,54 +494,115 @@ butt.addEventListener('click', (e) => {
 
 butt = document.querySelector("#useinfoChartButt");
 butt.addEventListener('click', (e) => {
-  initLineChart(['userNum', 'testNum'], [
-    {
-      label: '测速人数',
-      data: [],
-      borderColor: 'red',
-    },
-    {
-      label: '测速次数',
-      data: [],
-      borderColor: '#0ae',
-    }
-  ], 'use');
+  let start = $('#lineChartDatePicker').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+  let end = $('#lineChartDatePicker').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+  let step = document.querySelector('#lineChartStepSelector').selectedOptions[0].value;
+  let dayHourFlag = false;
+  if (step == 'dayHour') {
+    step = 'single';
+    dayHourFlag = true;
+  }
+  let reqParam = {
+    start_time: start,
+    end_time: end,
+    step: step
+  }
+  if (dayHourFlag) {
+    reqParam.withdata = true;
+  }
+  axios.get('/api/speedRangeLog.php', {
+    params: reqParam
+  }).then((rep) => {
+    let repDataJSON = JSON.stringify(rep.data);
+    clearCharts();
+    let repData = JSON.parse(repDataJSON);
+    initLineChart(repData, ['userNum', 'testNum'], [
+      {
+        label: '测速人数',
+        data: [],
+        borderColor: 'red',
+      },
+      {
+        label: '测速次数',
+        data: [],
+        borderColor: '#0ae',
+      }
+    ], 'use', dayHourFlag, step);
+    repData = JSON.parse(repDataJSON);
+    initLineChart(repData, ['dl', 'ul'], [
+      {
+        label: '平均下载速度 Mbps',
+        data: [],
+        borderColor: 'red',
+      },
+      {
+        label: '平均上传速度 Mbps',
+        data: [],
+        borderColor: '#0ae',
+      }
+    ], 'uldl', dayHourFlag, step);
+    repData = JSON.parse(repDataJSON);
+    initLineChart(repData, ['ping', 'jitter'], [
+      {
+        label: 'ping ms',
+        data: [],
+        borderColor: 'red',
+      },
+      {
+        label: 'jitter ms',
+        data: [],
+        borderColor: '#0ae',
+      }
+    ], 'pj', dayHourFlag, step);
+  }).catch((error) => {
+    console.error(error);
+    alertModal('加载失败', '统计图数据加载失败');
+  });
   e.preventDefault();
 });
 
-butt = document.querySelector("#uldlinfoChartButt");
-butt.addEventListener('click', (e) => {
-  initLineChart(['dl', 'ul'], [
-    {
-      label: '平均下载速度 Mbps',
-      data: [],
-      borderColor: 'red',
-    },
-    {
-      label: '平均上传速度 Mbps',
-      data: [],
-      borderColor: '#0ae',
-    }
-  ], 'uldl');
-  e.preventDefault();
-});
+let allSizePlusButtons = document.querySelectorAll('.col-size-plus');
+for (let i = 0; i < allSizePlusButtons.length; i ++) {
+  allSizePlusButtons[i].addEventListener('click', function() {
+    let target = this.dataset.selector;
+    target = document.querySelector(target);
+    if (!target) return;
+    colResize(target, target.dataset.size, 2, 12, 6)
+  });
+}
 
-butt = document.querySelector("#pjinfoChartButt");
-butt.addEventListener('click', (e) => {
-  initLineChart(['ping', 'jitter'], [
-    {
-      label: 'ping ms',
-      data: [],
-      borderColor: 'red',
-    },
-    {
-      label: 'jitter ms',
-      data: [],
-      borderColor: '#0ae',
-    }
-  ], 'pj');
-  e.preventDefault();
-});
+let allSizeMinusButton = document.querySelectorAll('.col-size-minus');
+for (let i = 0; i < allSizeMinusButton.length; i ++) {
+  allSizeMinusButton[i].addEventListener('click', function() {
+    let target = this.dataset.selector;
+    target = document.querySelector(target);
+    if (!target) return;
+    colResize(target, target.dataset.size, -2, 12, 6)
+  });
+}
+
+/**
+ * 
+ * @param object target 目标元素
+ * @param integer currentSize 当前的尺寸 0~12
+ * @param integer step 尺寸变化步长
+ * @param integer maxSize 最大的尺寸
+ * @param integer minSize 最小的尺寸
+ */
+function colResize(target, currentSize, step = 2, maxSize = 12, minSize = 0) {
+    currentSize = parseInt(currentSize);
+    if (currentSize + step > maxSize) return;
+    if (currentSize + step < minSize) return;
+    // step 必须是整数
+    if (step % 2) step -= 1;
+    target.classList.remove('col-lg-' + currentSize);
+    target.classList.remove('col-lg-offset-' + ((12 - currentSize) / 2));
+    currentSize += step;
+    target.dataset.size = currentSize;
+    target.classList.add('col-lg-' + currentSize);
+    target.classList.add('col-lg-offset-' + ((12 - currentSize) / 2));
+}
+
 
 // 饼图页面的按钮事件注册
 // 重新划分区间时重新拉取数据绘制饼图
@@ -890,35 +925,19 @@ function getPieChartData(division, dataArray) {
 }
 
 /**
- * 请求一段时间内的测速数据并绘制指定字段的变化情况
+ * 根据一段时间内的测速数据绘制指定字段的变化情况
+ * @param object repData 需要展示的数据
  * @param array apiDataName 需要展示的数据在API返回数据中的字段名
  * @param object chartDatasetsTemplate 渲染给chartjs折线图的数据模板
  * @param string elementIDPrefix 展示的相关UI的ID的前缀
+ * @param boolean dayHourFlag 是否将每天的同一小时进行合并
+ * @param string step 数据划分的步长
  */
-function initLineChart(apiDataName, chartDatasetsTemplate, elementIDPrefix) {
-  let start = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
-  let end = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
-  let step = document.querySelector(`#${elementIDPrefix}infoStepSelector`).selectedOptions[0].value;
-  let dayHourFlag = false;
-  if (step == 'dayHour') {
-    step = 'single';
-    dayHourFlag = true;
-  }
-  let reqParam = {
-    start_time: start,
-    end_time: end,
-    step: step
-  }
-  if (dayHourFlag) {
-    reqParam.withdata = true;
-  }
-  axios.get('/api/speedRangeLog.php', {
-    params: reqParam
-  }).then((rep) => {
-    clearCharts();
-    let repData = rep.data;
-    document.querySelector(`#${elementIDPrefix}infoUserNum`).innerHTML = repData.userNum;
-    document.querySelector(`#${elementIDPrefix}infoTestNum`).innerHTML = repData.testNum;
+function initLineChart(repData, apiDataName, chartDatasetsTemplate,
+                      elementIDPrefix, dayHourFlag, step)
+{
+    document.querySelector(`#lineChartUserNum`).innerHTML = repData.userNum;
+    document.querySelector(`#lineChartTestNum`).innerHTML = repData.testNum;
     if (dayHourFlag) {
       let hourData = new Array(24);
       let fillDataJSON = JSON.stringify({
@@ -996,8 +1015,4 @@ function initLineChart(apiDataName, chartDatasetsTemplate, elementIDPrefix) {
       type: 'line',
       data: chartData
     }));
-  }).catch((error) => {
-    console.error(error);
-    alertModal('加载失败', '统计图数据加载失败');
-  });
 }

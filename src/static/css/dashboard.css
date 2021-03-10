@@ -14,12 +14,9 @@
     margin: 0px 10px 0px 0px;
 }
 .date-range-picker {
-    min-width: 250px;
+    min-width: 300px;
 }
-.page[data-hash="/chart/useinfo"] > .row:nth-child(2), 
-.page[data-hash="/chart/uldlinfo"] > .row:nth-child(2),
-.page[data-hash="/chart/pjinfo"] > .row:nth-child(2)
-{
+.page[data-hash="/chart/line"] > .row:nth-child(2) {
     margin-top: 40px;    
     margin-bottom: 20px;
 }
@@ -53,4 +50,10 @@
 .form-group .required::after{
     content: '*';
     color: red;
+}
+#showCidrInfoModal {
+    margin-right: 10px;
+}
+.page[data-hash="/chart/line"] .box-tools button {
+    margin-right: 10px;
 }
