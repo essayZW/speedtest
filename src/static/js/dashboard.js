@@ -20,9 +20,9 @@ Date.prototype.Format = function (fmt) { //author: meizz
   return fmt;
 }
 /**
- * 显示消息到modal中 
- * @param string title 
- * @param string message 
+ * 显示消息到modal中
+ * @param string title
+ * @param string message
  */
 function alertModal(title, message) {
   $('#alertModalLabel').html(title);
@@ -681,7 +681,7 @@ eventDelegation('.table-event-handler', 'button.table-save', 'click', function(e
   }).catch((error) => {
     console.error(error);
     alertModal('修改失败', '发生未知错误');
-  });  
+  });
 });
 
 eventDelegation('.table-event-handler', 'button.table-delete', 'click', (e, _this) => {

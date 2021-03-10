@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__ .  '/../utils/validation.php');
+require_once('./telemetry_settings.php');
+require_once('./idObfuscation.php');
 error_reporting(0);
 ?>
 <!DOCTYPE html>
@@ -72,6 +74,9 @@ error_reporting(0);
     $stmp->bind_result($id, $time, $ip, $dl, $ul, $ping, $jitter);
     $tableHTML5 = '';
     while ($stmp->fetch()) {
+        if ($enable_id_obfuscation) {
+            $id = obfuscateId($id);
+        }
         $tableHTML5 .= "<tr><td>${time}</td><td>${ip}</td><td>${dl}</td><td>${ul}</td><td>${ping}</td><td>${jitter}</td><td><a href=\"/results/?id=${id}\">分享</a></td></tr>";
     }
     if (!strlen($tableHTML5)) { ?>
