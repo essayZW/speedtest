@@ -57,3 +57,8 @@
 .page[data-hash="/chart/line"] .box-tools button {
     margin-right: 10px;
 }
+
+.pie-dividedata-input-area .input-group {
+    max-width: 300px;
+    margin-left: 20px;
+}

@@ -362,6 +362,9 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                         <button class="btn btn-default pull-right col-size-plus" data-selector=".useinfoChartArea">
                                             <i class="fa fa-search-plus"></i>
                                         </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#useinfoChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -387,6 +390,9 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                         <button class="btn btn-default pull-right col-size-plus" data-selector=".uldlinfoChartArea">
                                             <i class="fa fa-search-plus"></i>
                                         </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#uldlinfoChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -411,6 +417,9 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                         </button>
                                         <button class="btn btn-default pull-right col-size-plus" data-selector=".pjinfoChartArea">
                                             <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#pjinfoChart">
+                                            导出为PNG图片
                                         </button>
                                     </div>
                                 </div>
@@ -446,14 +455,17 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title col-lg-2 pie-box-title">用户测速次数占比</h3>
-                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
-                                        <div class="input-group input-group-sm">
+                                    <h3 class="box-title pie-box-title">用户测速次数占比</h3>
+                                    <div class="box-tools pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm pull-right">
                                             <input type="text" class="form-control pull-right" value="5, 10, 20" id="userTestDivisionInput" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
                                         </div>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#userTestPieChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -471,14 +483,17 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title col-lg-2 pie-box-title">下载、上传速度占比</h3>
-                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
-                                        <div class="input-group input-group-sm">
+                                    <h3 class="box-title pie-box-title">下载、上传速度占比</h3>
+                                    <div class="box-tools pull-right pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm pull-right">
                                             <input type="text" class="form-control pull-right" id="dlulDivisionInput" value="100, 200, 500, 800, 1000" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
                                         </div>
+                                        <button class="btn btn-primary pull-right export-multiple-canvas" data-target="#dlPieChart|#ulPieChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -498,14 +513,17 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title col-lg-2 pie-box-title">ping、jitter占比</h3>
-                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
-                                        <div class="input-group input-group-sm">
+                                    <h3 class="box-title pie-box-title">ping、jitter占比</h3>
+                                    <div class="box-tools pie-dividedata-input-area">
+                                        <div class="input-group pull-right input-group-sm">
                                             <input type="text" class="form-control pull-right" id="pjDivisionInput" value="3, 5, 10, 100" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
                                         </div>
+                                        <button class="btn btn-primary pull-right export-multiple-canvas" data-target="#pingPieChart|#jitterPieChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">

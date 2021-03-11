@@ -19,16 +19,6 @@ Date.prototype.Format = function (fmt) { //author: meizz
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
   return fmt;
 }
-/**
- * 显示消息到modal中
- * @param string title
- * @param string message
- */
-function alertModal(title, message) {
-  $('#alertModalLabel').html(title);
-  $('#alertModalMessage').html(message);
-  $('#alertModal').modal('show');
-}
 window.router = new Router();
 window.charts = [];
 window.editableTableData = {};
@@ -581,28 +571,33 @@ for (let i = 0; i < allSizeMinusButton.length; i ++) {
   });
 }
 
-/**
- * 
- * @param object target 目标元素
- * @param integer currentSize 当前的尺寸 0~12
- * @param integer step 尺寸变化步长
- * @param integer maxSize 最大的尺寸
- * @param integer minSize 最小的尺寸
- */
-function colResize(target, currentSize, step = 2, maxSize = 12, minSize = 0) {
-    currentSize = parseInt(currentSize);
-    if (currentSize + step > maxSize) return;
-    if (currentSize + step < minSize) return;
-    // step 必须是整数
-    if (step % 2) step -= 1;
-    target.classList.remove('col-lg-' + currentSize);
-    target.classList.remove('col-lg-offset-' + ((12 - currentSize) / 2));
-    currentSize += step;
-    target.dataset.size = currentSize;
-    target.classList.add('col-lg-' + currentSize);
-    target.classList.add('col-lg-offset-' + ((12 - currentSize) / 2));
+let allExportCanvasButtons = document.querySelectorAll('.export-canvas');
+for (let i = 0; i < allExportCanvasButtons.length; i ++) {
+  allExportCanvasButtons[i].addEventListener('click', function(e) {
+    let targetSelector = this.dataset.target;
+    let target = document.querySelector(targetSelector);
+    if (!target) return;
+    let fileName = target.id;
+    exportCanvasAsPng(target, fileName + '_' + moment().format('YYYYMMDDHHmmss') + '.png');
+    e.stopPropagation();
+  });
 }
-
+// 单个按钮导出多个图片
+// 多个图片的canvas选择器以|隔开
+allExportCanvasButtons = document.querySelectorAll('.export-multiple-canvas');
+for (let i = 0; i < allExportCanvasButtons.length; i ++) {
+  allExportCanvasButtons[i].addEventListener('click', function(e) {
+    let targetSelectors = this.dataset.target;
+    targetSelectors = targetSelectors.split('|');
+    for (let j = 0; j < targetSelectors.length; j ++) {
+      let target = document.querySelector(targetSelectors[j]);
+      if (!target) return;
+      let fileName = target.id;
+      exportCanvasAsPng(target, fileName + '_' + moment().format('YYYYMMDDHHmmss') + '.png');
+    }
+    e.stopPropagation();
+  });
+}
 
 // 饼图页面的按钮事件注册
 // 重新划分区间时重新拉取数据绘制饼图
@@ -1015,4 +1010,54 @@ function initLineChart(repData, apiDataName, chartDatasetsTemplate,
       type: 'line',
       data: chartData
     }));
+}
+
+/**
+ * 通过修改div col-lg-* col-lg-offset-lg-* 两个class名修改元素大小并时刻保持居中
+ * @param object target 目标元素
+ * @param integer currentSize 当前的尺寸 0~12
+ * @param integer step 尺寸变化步长
+ * @param integer maxSize 最大的尺寸
+ * @param integer minSize 最小的尺寸
+ */
+function colResize(target, currentSize, step = 2, maxSize = 12, minSize = 0) {
+    currentSize = parseInt(currentSize);
+    if (currentSize + step > maxSize) return;
+    if (currentSize + step < minSize) return;
+    // step 必须是整数
+    if (step % 2) step -= 1;
+    target.classList.remove('col-lg-' + currentSize);
+    target.classList.remove('col-lg-offset-' + ((12 - currentSize) / 2));
+    currentSize += step;
+    target.dataset.size = currentSize;
+    target.classList.add('col-lg-' + currentSize);
+    target.classList.add('col-lg-offset-' + ((12 - currentSize) / 2));
+}
+/**
+ * 显示消息到modal中
+ * @param string title
+ * @param string message
+ */
+function alertModal(title, message) {
+  $('#alertModalLabel').html(title);
+  $('#alertModalMessage').html(message);
+  $('#alertModal').modal('show');
+}
+
+/**
+ * 导出canvas为PNG图片
+ * @param object canvasElement canvas元素
+ * @param string fileName 保存的文件名
+ */
+function exportCanvasAsPng(canvasElement, fileName) {
+  if (!canvasElement) return;
+  const fileType = 'image/png';
+  let data = canvasElement.toDataURL(fileType);
+  let a = document.createElement('a');
+  a.href = data;
+  a.download = fileName;
+  a.style.display = 'none';
+  document.body.append(a);
+  a.click();
+  document.body.removeChild(a);
 }
