@@ -309,3 +309,45 @@ class IpCIDRFilter {
         return null;
     }
 }
+
+
+/**
+ * 从数据库中加载CIDR过滤器列表
+ * @return array
+ */
+function getCIDRListFromMysql() {
+    include(__DIR__ . '/../results/telemetry_settings.php');
+    $cidrRuleList = [];
+    $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
+    $p = $conn->prepare('SELECT `cidr`, position, accessmethod, isp, ispinfo FROM  speedtest_cidrinfo ORDER BY `index` DESC, id DESC');
+    $p->execute();
+    $p->bind_result($cidr, $position, $accessMethod, $isp, $ispInfo);
+    while ($p->fetch()) {
+        $cidrRuleList[] = [
+            'rule' => $cidr,
+            'info' => [
+                'position' => $position,
+                'accessMethod' => $accessMethod,
+                'isp' => $isp,
+                'ispInfo' => $ispInfo
+            ]
+        ];
+    }
+    $p->close();
+    $conn->close();
+    $cidrFilterList = [];
+    for ($i = 0; $i < count($cidrRuleList); $i++) {
+        $currentRule = $cidrRuleList[$i];
+        if (isset($currentRule['rule']) && is_string($currentRule['rule'])) {
+            try {
+                $cidrFilterList[] = [
+                    'rule' => new IpCIDR($currentRule['rule']),
+                    'info' => $currentRule['info']
+                ];
+            } catch (Exception $e) {
+                // nothing to do
+            }
+        }
+    }
+    return $cidrFilterList;
+}

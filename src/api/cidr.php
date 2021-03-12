@@ -31,7 +31,7 @@ $operation = get($_GET, 'operation');
 
 switch ($operation) {
     case 'select':
-        $p = $conn->prepare('SELECT * FROM speedtest_cidrinfo');
+        $p = $conn->prepare('SELECT id, `cidr`, position, accessMethod, isp, ispinfo FROM speedtest_cidrinfo');
         $p->execute();
         $p->bind_result($id, $cidr, $position, $accessmethod, $isp, $ispinfo);
         $cidrList = [];

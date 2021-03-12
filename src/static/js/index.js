@@ -82,7 +82,19 @@ function updateUI(forced){
     if(!forced&&s.getState()!=3) return;
     if(uiData==null) return;
     var status=uiData.testState;
-    I("ip").textContent=uiData.clientIp;
+    // 因为再调用abort之后不知道为啥该函数会再执行一次
+    // 此时所有uiData已经为空，因此不需要显示链接符号
+    let linkChar = '';
+    if (uiData.clientIp.length && uiData.isp.length)
+        linkChar = '-';
+    I("ipAndIsp").textContent = uiData.clientIp + linkChar + uiData.isp;
+    if (uiData.ipPosition.length && uiData.ipAccessMethod.length) {
+        linkChar = '-';
+    }
+    else {
+        linkChar = '';
+    }
+    I("ipPositionAndAccessMethod").textContent = uiData.ipPosition + linkChar + uiData.ipAccessMethod;
     I("dlText").textContent=(status==1&&uiData.dlStatus==0)?"...":format(uiData.dlStatus);
     drawMeter(I("dlMeter"),mbpsToAmount(Number(uiData.dlStatus*(status==1?oscillate():1))),meterBk,dlColor,Number(uiData.dlProgress),progColor);
     I("ulText").textContent=(status==3&&uiData.ulStatus==0)?"...":format(uiData.ulStatus);
@@ -108,5 +120,6 @@ function initUI(){
     I("ulText").textContent="";
     I("pingText").textContent="";
     I("jitText").textContent="";
-    I("ip").textContent="";
+    I("ipAndIsp").textContent="";
+    I("ipPositionAndAccessMethod").textContent="";
 }

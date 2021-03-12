@@ -242,6 +242,14 @@ let config = {
               title: 'IP'
             },
             {
+              field: 'position',
+              title: '接入地点'
+            },
+            {
+              field: 'accessMethod',
+              title: '接入方式'
+            },
+            {
               field: 'dl',
               title: '下载速度Mbps'
             },
@@ -808,6 +816,7 @@ cidrAddbutton.addEventListener('click', () => {
     let repData = rep.data;
     if (repData.status) {
       $('#cidrTable').bootstrapTable('refresh');
+      $('#cidrModal').modal('hide');
     }
     else {
       alertModal('修改失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
@@ -815,9 +824,7 @@ cidrAddbutton.addEventListener('click', () => {
   }).catch((error) => {
     console.log(error);
     alertModal('添加失败', '添加失败请稍候重试!');
-  }).finally(() => {
-    $('#cidrModal').modal('hide');
-  });
+  })
 });
 
 let allPretoDivisionButt = document.querySelectorAll('.pareto-division-butt');

@@ -755,22 +755,6 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
         </div>
     </div>
 
-    <!-- message modal start -->
-    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="alertModalLabel"></h4>
-                </div>
-                <div class="modal-body" id="alertModalMessage"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- message modal end -->
     <!-- CIDR info modal start -->
     <div class="modal fade" id="cidrModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
@@ -811,6 +795,23 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
         </div>
     </div>
     <!-- CIDR info modal end-->
+
+    <!-- message modal start -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="alertModalLabel"></h4>
+                </div>
+                <div class="modal-body" id="alertModalMessage"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- message modal end -->
 
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.js"></script>

@@ -2,6 +2,7 @@
 require_once(__DIR__ .  '/../utils/validation.php');
 require_once('./telemetry_settings.php');
 require_once('./idObfuscation.php');
+require_once(__DIR__ . '/../utils/cidr.php');
 error_reporting(0);
 ?>
 <!DOCTYPE html>
@@ -77,7 +78,27 @@ error_reporting(0);
         if ($enable_id_obfuscation) {
             $id = obfuscateId($id);
         }
-        $tableHTML5 .= "<tr><td>${time}</td><td>${ip}</td><td>${dl}</td><td>${ul}</td><td>${ping}</td><td>${jitter}</td><td><a href=\"/results/?id=${id}\">分享</a></td></tr>";
+        $cidrFilterList = getCIDRListFromMysql();
+        $filter = new IpCIDRFilter($cidrFilterList);
+        $matchedIndex = $filter->test($ip);
+        $position = 'Unknown';
+        $accessMethod = 'Unknown';
+        if (isset($matchedIndex[0])) {
+            $info = $filter->getFilterInfoByIndex($matchedIndex[0]);
+            $position = $info['position'] ? $info['position'] : 'Unknown';
+            $accessMethod = $info['accessMethod'] ? $info['accessMethod'] : 'Unknown';
+        }
+        $tableHTML5 .= "<tr>
+                            <td>${time}</td>
+                            <td>${ip}</td>
+                            <td>${position}</td>
+                            <td>${accessMethod}</td>
+                            <td>${dl}</td>
+                            <td>${ul}</td>
+                            <td>${ping}</td>
+                            <td>${jitter}</td>
+                            <td><a href=\"/results/?id=${id}\">分享</a></td>
+                        </tr>";
     }
     if (!strlen($tableHTML5)) { ?>
         <h2>没有记录</h2>
@@ -86,6 +107,8 @@ error_reporting(0);
             <tr>
                 <th>时间</th>
                 <th>IP</th>
+                <th>网络接入地点</th>
+                <th>网络接入方式</th>
                 <th>下载速度/Mbps</th>
                 <th>上传速度/Mbps</th>
                 <th>ping</th>
