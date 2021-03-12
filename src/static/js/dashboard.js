@@ -22,6 +22,16 @@ Date.prototype.Format = function (fmt) { //author: meizz
 window.router = new Router();
 window.charts = [];
 window.editableTableData = {};
+Chart.register({
+  id: 'beforeDraw',
+  beforeDraw: function (chart) {
+    var ctx = chart.ctx;
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  }
+});
 let config = {
   routes: [
     {
@@ -401,6 +411,19 @@ let config = {
       },
       callback: () => {
 
+      }
+    },
+    {
+      path: '/chart/pareto',
+      name: 'paretoChart',
+      pageHeader: {
+        info : '测速人数、每人测速次数、测速下载速度、上传速度、ping和jitter按区间分隔帕累托图',
+        title: '测速数据帕累托图',
+        pageTitle: '测速数据帕累托图'
+      },
+      callback: () => {
+        let butt = document.querySelector('#paretoinfoChartButt');
+        butt.click();
       }
     }
   ]
@@ -797,6 +820,71 @@ cidrAddbutton.addEventListener('click', () => {
   });
 });
 
+let allPretoDivisionButt = document.querySelectorAll('.pareto-division-butt');
+for (let i = 0; i < allPretoDivisionButt.length; i ++) {
+  allPretoDivisionButt[i].addEventListener('click', () => {
+    document.querySelector('#paretoinfoChartButt').click();
+  });
+}
+
+
+butt = document.querySelector('#paretoinfoChartButt');
+butt.addEventListener('click', (e) => {
+  clearCharts();
+  let elementIDPrefix = 'pareto';
+  let start = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:00');
+  let end = $(`#${elementIDPrefix}infoDatePicker`).data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:00');
+  axios.get('/api/speedRangeLog.php', {
+    params: {
+      start_time: start,
+      end_time: end,
+      step: 'single',
+      withdata: true
+    }
+  }).then((rep) => {
+    let repData = rep.data;
+    // 用来统计每个用户测速次数
+    let userTestNumsTable = {};
+    // 用来存储各项测试数据
+    let pingDatas = [],
+      jitterDatas = [],
+      dlDatas = [],
+      ulDatas = [],
+      userDatas = [];
+    for (let index = 0; index < repData.data.length; index++) {
+      let singleData = repData.data[index].data[0];
+      if (userTestNumsTable[singleData.unumber] == undefined) {
+        userTestNumsTable[singleData.unumber] = 0;
+      }
+      userTestNumsTable[singleData.unumber]++;
+      pingDatas.push(singleData.ping);
+      jitterDatas.push(singleData.jitter);
+      dlDatas.push(singleData.dl);
+      ulDatas.push(singleData.ul);
+    }
+    for (let key in userTestNumsTable) {
+      userDatas.push(userTestNumsTable[key]);
+    }
+
+    let userTestDivision = document.querySelector('#paretoUserNumDivisionInput').value;
+    userTestDivision = splitIntArray(userTestDivision, ',');
+    initParetoChart(userTestDivision, userDatas, 'useNums', '每人测速次数');
+
+    let dlulDivision = document.querySelector('#paretoDlulDivisionInput').value;
+    dlulDivision = splitIntArray(dlulDivision, ',');
+    initParetoChart(dlulDivision, dlDatas, 'dl', '下载速度');
+    initParetoChart(dlulDivision, ulDatas, 'ul', '上传速度');
+
+    let pjDivision = document.querySelector('#paretoPjDivisionInput').value;
+    pjDivision = splitIntArray(pjDivision, ',');
+    initParetoChart(pjDivision, pingDatas, 'ping', 'ping');
+    initParetoChart(pjDivision, jitterDatas, 'jitter', 'jitter');
+  }).catch((error) => {
+    console.error(error);
+    alertModal('加载失败', '统计图数据加载失败');
+  });
+  e.preventDefault();
+});
 /**
  * 注册事件委托
  * @param string eventHandlerSelector 事件的接收者
@@ -822,12 +910,93 @@ function eventDelegation(eventHandlerSelector, targetElementSelector, eventType,
  * @param string elementIDPrefix canvas ID前缀
  */
 function initPieChart(division, datas, elementIDPrefix) {
-  let chartData = getPieChartData(division, datas);
-  chartData = translateChartData(chartData);
+  let chartData = getDivisiedChartData(division, datas);
+  chartData = translatePieChartData(chartData);
   let canvas = document.querySelector(`#${elementIDPrefix}PieChart`).getContext('2d');
   window.charts.push(new Chart(canvas, {
     type: 'pie',
     data: chartData
+  }));
+}
+
+/**
+ * 根据数据初始化一个帕累托图
+ * @param array division 区间划分数组
+ * @param array  datas 数据数组
+ * @param string elementIDPrefix canvas ID前缀
+ * @param string barName bar图的label
+ */
+function initParetoChart(division, datas, elementIDPrefix, barName) {
+  let chartData = getDivisiedChartData(division, datas);
+  chartData = translateParetoChartData(chartData);
+  chartData.datasets[1].label = barName;
+  let canvas = document.querySelector(`#${elementIDPrefix}ParetoChart`).getContext('2d');
+  // 顶部padding防止超出图片的图例不显示
+  let options = {
+    layout: {
+      padding: {
+        top: 10
+      }
+    },
+    scales: {
+      value: {
+          type: 'linear',
+          position: 'left'
+      },
+      sum: {
+        type: 'linear',
+        position: 'right',
+        gridLines: {
+          color: '#aaa'
+        },
+        ticks: {
+          callback: (value) => {
+            return value * 100 + '%';
+          }
+        }
+      }
+    },
+    animation: {
+      onComplete: function(data) {
+        let ctx = data.chart.ctx;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        window.xss = this;
+        data.chart.config.data.datasets.forEach((dataset) => {
+          switch (dataset.type) {
+            case 'line':
+              ctx.fillStyle = "red";
+              dataset.data.forEach(function (value, index) {
+                ctx.fillText((value * 100).toFixed(2) + '%', data.chart._metasets[0].data[index].x, data.chart._metasets[0].data[index].y - 20);
+              });
+              break;
+            case 'bar':
+              ctx.fillStyle = "#0ae";
+              dataset.data.forEach(function (value, index) {
+                // 避免与折线图的数字重合，向右偏移30px
+                ctx.fillText(value, data.chart._metasets[1].data[index].x - 30, data.chart._metasets[1].data[index].y - 20);
+              });
+              break;
+          }
+        });
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'right'
+      }
+    },
+    layout: {
+      padding: {
+        top: 30
+      }
+    }
+  };
+  window.charts.push(new Chart(canvas, {
+    type: 'bar',
+    data: chartData,
+    options: options
   }));
 }
 
@@ -845,10 +1014,10 @@ function splitIntArray(str, splitFlag) {
 }
 
 /**
- * 将getPieChartData生成的数据转化为Chart.js需要的数据类型
+ * 将getDivisiedChartData生成的数据转化为Chart.js pie图需要的数据类型
  * @param array data 需要转化的数据
  */
-function translateChartData(data) {
+function translatePieChartData(data) {
   let resDataTemplate = {
     labels: [],
     datasets: [
@@ -867,12 +1036,52 @@ function translateChartData(data) {
   });
   return resDataTemplate;
 }
+
+/**
+ * 将getDivisiedChartData生成的数据转化为chart.js pareto图需要的数据类型
+ * @param array data 需要转化的数据
+ */
+function translateParetoChartData(data) {
+  let resDataTemplate = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        borderColor: 'red',
+        type: 'line',
+        label: '累计频率',
+        yAxisID: 'sum',
+        clip: { 
+          top: false,
+          bottom: false,
+          left: 5,
+          right: 5
+        }
+      },
+      {
+        data: [],
+        backgroundColor: '#0ae',
+        type: 'bar',
+        label: '',
+        yAxisID: 'value',
+      }
+    ]
+  };
+  let nowPercentage = 0;
+  data.forEach((element) => {
+    resDataTemplate.labels.push(element.label);
+    nowPercentage += element.percentage;
+    resDataTemplate.datasets[0].data.push(nowPercentage);
+    resDataTemplate.datasets[1].data.push(element.value);
+  });
+  return resDataTemplate;
+}
 /**
  * 生成用于chartjs 饼状图使用的数据
  * @param array division 划分的区间
  * @param array dataArray 所有的数据
  */
-function getPieChartData(division, dataArray) {
+function getDivisiedChartData(division, dataArray) {
   if (division.length == 0) return [dataArray.length];
   division.sort((a, b) => a - b);
   dataArray.sort((a, b) => a - b);
@@ -1026,6 +1235,7 @@ function colResize(target, currentSize, step = 2, maxSize = 12, minSize = 0) {
     if (currentSize + step < minSize) return;
     // step 必须是整数
     if (step % 2) step -= 1;
+    target.style.transition = 'width 0.7s,height 0.7s,margin 0.7s';
     target.classList.remove('col-lg-' + currentSize);
     target.classList.remove('col-lg-offset-' + ((12 - currentSize) / 2));
     currentSize += step;

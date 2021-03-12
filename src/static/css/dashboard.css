@@ -27,6 +27,10 @@
 {
     margin-top : 40px;
 }
+.page[data-hash="/chart/pareto"] > .row:nth-child(2)
+{
+    margin-top: 40px;
+}
 .box-header > .pie-dividedata-input-area {
     position: relative;
     top:0px;
@@ -54,11 +58,14 @@
 #showCidrInfoModal {
     margin-right: 10px;
 }
-.page[data-hash="/chart/line"] .box-tools button {
+.page[data-hash="/chart/line"] .box-header button {
     margin-right: 10px;
 }
 
-.pie-dividedata-input-area .input-group {
+.pie-dividedata-input-area .input-group,
+.pareto-dividedata-input-area .input-group,
+.pareto-dividedata-input-area button
+{
     max-width: 300px;
     margin-left: 20px;
 }

@@ -87,6 +87,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <ul class="treeview-menu">
                             <li><a href="#/chart/line"><i class="fa fa-circle-o"></i>测速情况变化曲线图</a></li>
                             <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比饼状图</a></li>
+                            <li><a href="#/chart/pareto"><i class="fa fa-circle-o"></i>各项数据帕累托图</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -351,15 +352,15 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title"><i class="fa fa-area-chart"></i>测速人数以及每人测速次数统计图</h3>
-                                    <div class="pull-right box-tools">
+                                    <h3 class="box-title pull-left"><i class="fa fa-area-chart"></i>测速人数以及每人测速次数统计图</h3>
+                                    <div class="pull-right">
                                         <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
                                             <i class="fa fa-minus"></i>
                                         </button>
-                                        <button class="btn btn-default pull-right col-size-minus" data-selector=".useinfoChartArea">
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#useinfoChartArea">
                                             <i class="fa fa-search-minus"></i>
                                         </button>
-                                        <button class="btn btn-default pull-right col-size-plus" data-selector=".useinfoChartArea">
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#useinfoChartArea">
                                             <i class="fa fa-search-plus"></i>
                                         </button>
                                         <button class="btn btn-primary pull-right export-canvas" data-target="#useinfoChart">
@@ -368,7 +369,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <div class="col-lg-10 col-lg-offset-1 useinfoChartArea" data-size="10">
+                                    <div class="col-lg-10 col-lg-offset-1" id="useinfoChartArea" data-size="10">
                                         <canvas id="useinfoChart"></canvas>
                                     </div>
                                 </div>
@@ -379,15 +380,15 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title"><i class="fa fa-area-chart"></i><span>测速下载和上传速度统计图</span></h3>
-                                    <div class="pull-right box-tools">
+                                    <h3 class="box-title pull-left"><i class="fa fa-area-chart"></i><span>测速下载和上传速度统计图</span></h3>
+                                    <div class="pull-right">
                                         <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
                                             <i class="fa fa-minus"></i>
                                         </button>
-                                        <button class="btn btn-default pull-right col-size-minus" data-selector=".uldlinfoChartArea">
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#uldlinfoChartArea">
                                             <i class="fa fa-search-minus"></i>
                                         </button>
-                                        <button class="btn btn-default pull-right col-size-plus" data-selector=".uldlinfoChartArea">
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#uldlinfoChartArea">
                                             <i class="fa fa-search-plus"></i>
                                         </button>
                                         <button class="btn btn-primary pull-right export-canvas" data-target="#uldlinfoChart">
@@ -396,7 +397,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <div class="col-lg-10 col-lg-offset-1 uldlinfoChartArea" data-size="10">
+                                    <div class="col-lg-10 col-lg-offset-1" id="uldlinfoChartArea" data-size="10">
                                         <canvas id="uldlinfoChart"></canvas>
                                     </div>
                                 </div>
@@ -407,15 +408,15 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title"><i class="fa fa-area-chart"></i>测速ping和jitter统计图</h3>
-                                    <div class="pull-right box-tools">
+                                    <h3 class="box-title pull-left"><i class="fa fa-area-chart"></i>测速ping和jitter统计图</h3>
+                                    <div class="pull-right">
                                         <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
                                             <i class="fa fa-minus"></i>
                                         </button>
-                                        <button class="btn btn-default pull-right col-size-minus" data-selector=".pjinfoChartArea">
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#pjinfoChartArea">
                                             <i class="fa fa-search-minus"></i>
                                         </button>
-                                        <button class="btn btn-default pull-right col-size-plus" data-selector=".pjinfoChartArea">
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#pjinfoChartArea">
                                             <i class="fa fa-search-plus"></i>
                                         </button>
                                         <button class="btn btn-primary pull-right export-canvas" data-target="#pjinfoChart">
@@ -424,7 +425,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <div class="col-lg-10 col-lg-offset-1 pjinfoChartArea" data-size="10">
+                                    <div class="col-lg-10 col-lg-offset-1" id="pjinfoChartArea" data-size="10">
                                         <canvas id="pjinfoChart"></canvas>
                                     </div>
                                 </div>
@@ -455,10 +456,10 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title pie-box-title">用户测速次数占比</h3>
-                                    <div class="box-tools pie-dividedata-input-area">
+                                    <h3 class="box-title pull-left pie-box-title">用户测速次数占比</h3>
+                                    <div class="pull-right pie-dividedata-input-area">
                                         <div class="input-group input-group-sm pull-right">
-                                            <input type="text" class="form-control pull-right" value="5, 10, 20" id="userTestDivisionInput" placeholder="请输入划分的区间,以逗号分隔">
+                                            <input type="text" class="form-control pull-right" value="1,5,10,20" id="userTestDivisionInput" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
@@ -483,10 +484,10 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title pie-box-title">下载、上传速度占比</h3>
-                                    <div class="box-tools pull-right pie-dividedata-input-area">
+                                    <h3 class="pull-left box-title pie-box-title">下载、上传速度占比</h3>
+                                    <div class="pull-right pie-dividedata-input-area">
                                         <div class="input-group input-group-sm pull-right">
-                                            <input type="text" class="form-control pull-right" id="dlulDivisionInput" value="100, 200, 500, 800, 1000" placeholder="请输入划分的区间,以逗号分隔">
+                                            <input type="text" class="form-control pull-right" id="dlulDivisionInput" value="8,64,200,500,1000" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
@@ -513,10 +514,10 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title pie-box-title">ping、jitter占比</h3>
-                                    <div class="box-tools pie-dividedata-input-area">
+                                    <h3 class="box-title pull-left pie-box-title">ping、jitter占比</h3>
+                                    <div class="pull-right pie-dividedata-input-area">
                                         <div class="input-group pull-right input-group-sm">
-                                            <input type="text" class="form-control pull-right" id="pjDivisionInput" value="3, 5, 10, 100" placeholder="请输入划分的区间,以逗号分隔">
+                                            <input type="text" class="form-control pull-right" id="pjDivisionInput" value="3,10,50,100" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
@@ -547,8 +548,8 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title"><span>CIDR列表</span><small>点击字段可修改内容</small></h3>
-                                    <div class="box-tools pull-right">
+                                    <h3 class="box-title pull-left"><span>CIDR列表</span><small>点击字段可修改内容</small></h3>
+                                    <div class="pull-right">
                                         <div class="pull-right" id="cidrTableToolArea"></div>
                                         <div class="pull-right"><button class="btn btn-primary" id="showCidrInfoModal">添加CIDR信息</button></div>
                                     </div>
@@ -566,6 +567,185 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                     <div class="row">测速节点设置</div>
                 </div>
                 <!-- 测速节点设置页面结束 -->
+                <!-- 测速数据帕累托图页面 -->
+                <div class="page" data-hash="/chart/pareto">
+                    <div class="row">
+                        <form role="form" class="col-lg-12 form-inline">
+                            <div class="form-group">
+                                <label>数据时间范围:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right date-range-picker" id="paretoinfoDatePicker">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" id="paretoinfoChartButt">确认</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">每位用户测速次数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="paretoUserNumDivisionInput" value="1,5,10,20" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pareto-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#useNumsParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#useNumsParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#useNumsParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="useNumsParetoChartArea" data-size="10">
+                                        <canvas id="useNumsParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">下载速度各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="paretoDlulDivisionInput" value="8,64,200,500,1000" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pareto-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#dlParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#dlParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#dlParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="dlParetoChartArea"data-size="10">
+                                        <canvas id="dlParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">上传速度各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#ulParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#ulParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#ulParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="ulParetoChartArea" data-size="10">
+                                        <canvas id="ulParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">ping各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="paretoPjDivisionInput" value="3,5,10,100" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pareto-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#pingParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#pingParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#pingParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="pingParetoChartArea" data-size="10">
+                                        <canvas id="pingParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">jitter各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#jitterParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#jitterParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#jitterParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="jitterParetoChartArea" data-size="10">
+                                        <canvas id="jitterParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 测速数据帕累托图页面结束 -->
+
             </div>
         </div>
         <div class="main-footer">
