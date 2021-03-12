@@ -962,7 +962,6 @@ function initParetoChart(division, datas, elementIDPrefix, barName) {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        window.xss = this;
         data.chart.config.data.datasets.forEach((dataset) => {
           switch (dataset.type) {
             case 'line':
