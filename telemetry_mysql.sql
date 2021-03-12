@@ -22,8 +22,9 @@ CREATE TABLE `speedtest_cidrinfo` (
   `accessmethod` varchar(45) DEFAULT NULL,
   `isp` varchar(128) DEFAULT NULL,
   `ispinfo` text,
+  `index` int DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -32,7 +33,7 @@ CREATE TABLE `speedtest_cidrinfo` (
 
 LOCK TABLES `speedtest_cidrinfo` WRITE;
 /*!40000 ALTER TABLE `speedtest_cidrinfo` DISABLE KEYS */;
-INSERT INTO `speedtest_cidrinfo` VALUES (1,'::1/128',NULL,NULL,'localhost IPv6 access',NULL),(2,'fe80::/10',NULL,NULL,'link-local IPv6 access',NULL),(3,'127.0.0.0/8',NULL,NULL,'localhost IPv4 access',NULL),(4,'10.0.0.0/8',NULL,NULL,'private IPv4 access',NULL),(5,'172.16.0.0/12',NULL,NULL,'private IPv4 access',NULL),(6,'192.168.0.0/16',NULL,NULL,'private IPv4 access',NULL),(7,'169.254.0.0/16',NULL,NULL,'link-local IPv4 access',NULL);
+INSERT INTO `speedtest_cidrinfo` VALUES (1,'::1/128',NULL,NULL,'localhost IPv6 access',NULL,0),(2,'fe80::/10',NULL,NULL,'link-local IPv6 access',NULL,0),(3,'127.0.0.0/8',NULL,NULL,'localhost IPv4 access',NULL,0),(4,'10.0.0.0/8',NULL,NULL,'private IPv4 access',NULL,0),(5,'172.16.0.0/12',NULL,NULL,'private IPv4 access',NULL,0),(6,'192.168.0.0/16',NULL,NULL,'private IPv4 access',NULL,0),(7,'169.254.0.0/16',NULL,NULL,'link-local IPv4 access',NULL,0);
 /*!40000 ALTER TABLE `speedtest_cidrinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -57,16 +58,11 @@ CREATE TABLE `speedtest_infos` (
   `jitter` text,
   `log` longtext,
   `userid` int DEFAULT NULL,
-  `cidrid` int DEFAULT NULL,
   `testpointid` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `infoid_userid_idx` (`userid`),
-  KEY `infoid_cidrid_idx` (`cidrid`),
-  KEY `infoid_testpointdi_idx` (`testpointid`),
-  CONSTRAINT `infoid_cidrid` FOREIGN KEY (`cidrid`) REFERENCES `speedtest_cidrinfo` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `infoid_testpointdi` FOREIGN KEY (`testpointid`) REFERENCES `speedtest_testpoints` (`id`),
-  CONSTRAINT `infoid_userid` FOREIGN KEY (`userid`) REFERENCES `speedtest_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `infoid_userid` FOREIGN KEY (`userid`) REFERENCES `speedtest_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -86,18 +82,10 @@ CREATE TABLE `speedtest_testpoints` (
   `ulURL` varchar(128) DEFAULT NULL,
   `pingURL` varchar(128) DEFAULT NULL,
   `getIpURL` varchar(128) DEFAULT NULL,
+  `status` tinyint DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `speedtest_testpoints`
---
-
-LOCK TABLES `speedtest_testpoints` WRITE;
-/*!40000 ALTER TABLE `speedtest_testpoints` DISABLE KEYS */;
-/*!40000 ALTER TABLE `speedtest_testpoints` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `speedtest_users`
@@ -111,4 +99,5 @@ CREATE TABLE `speedtest_users` (
   `name` varchar(50) NOT NULL,
   `number` varchar(15) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
