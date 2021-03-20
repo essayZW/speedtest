@@ -311,10 +311,15 @@ function getIp(done) {
     try {
       var data = JSON.parse(xhr.responseText);
       clientIp = data.ip;
+      if (clientIp == null || clientIp == undefined) clientIp = 'Unknown';
       isp = data.isp;
+      if (isp == null || isp == undefined) isp = 'Unknown';
       ispInfo = data.ispInfo;
+      if (ispInfo == null || ispInfo == undefined) ispInfo = 'Unknown';
       ipPosition = data.position;
+      if (ipPosition == null || ipPosition == undefined) ipPosition = 'Unknown';
       ipAccessMethod = data.accessMethod;
+      if (ipAccessMethod == null || ipPosition == undefined) ipAccessMethod = 'Unknown';
     } catch (e) {
       clientIp = xhr.responseText;
       ispInfo = "";
