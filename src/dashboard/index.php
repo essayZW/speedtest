@@ -564,7 +564,11 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                 <!-- CIDR列表设置页面结束 -->
                 <!-- 测速节点设置页面 -->
                 <div class="page" data-hash="/settings/testpoints">
-                    <div class="row">测速节点设置</div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                        Building!
+                        </div>
+                    </div>
                 </div>
                 <!-- 测速节点设置页面结束 -->
                 <!-- 测速数据帕累托图页面 -->
