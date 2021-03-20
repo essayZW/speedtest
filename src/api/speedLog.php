@@ -1,5 +1,9 @@
 <?php
 /**
+ * 该文件主要提供对于测速历史记录的查询
+ * 支持分页查询
+ * 支持按照某字段进行模糊搜索查询
+ *  
  * param: all
  * description: 模式决定，返回多条数据
  *
@@ -25,7 +29,8 @@
  * description: 返回单个数据时的数据ID
  */
 include_once("./init.php");
-
+include_once(__DIR__ . '/../utils/cidr.php');
+needAdmin();
 if(isset($_GET['all'])) {
     $start = get($_GET, 'start');
     if($start == null) $start = 0;
@@ -91,8 +96,10 @@ if(isset($_GET['all'])) {
     $p->execute();
     $p->bind_result($name, $id, $time, $dl, $ul, $ping, $jitter, $ip, $unumber);
     $allData = [];
+    $cidrFilterList = getCIDRListFromMysql();
+    $filter = new IpCIDRFilter($cidrFilterList);
     while($p->fetch()) {
-        $allData[] = [
+        $currentData = [
             'ip' => $ip,
             'id' => $id,
             'dl' => $dl,
@@ -101,8 +108,17 @@ if(isset($_GET['all'])) {
             'jitter' => $jitter,
             'unumber' => $unumber,
             'name' => $name,
-            'time' => $time
+            'time' => $time,
+            'position' => 'Unknown',
+            'accessMethod' => 'Unknown'
         ];
+        $matchedIndex = $filter->test($ip);
+        if (isset($matchedIndex[0])) {
+            $ispInfo = $filter->getFilterInfoByIndex($matchedIndex[0]);
+            $currentData['position'] = $ispInfo['position'] ? $ispInfo['position'] : 'Unknown';
+            $currentData['accessMethod'] = $ispInfo['accessMethod'] ? $ispInfo['accessMethod'] : 'Unknown';
+        }
+        $allData[] = $currentData;
     }
     $p->close();
     $q->execute();

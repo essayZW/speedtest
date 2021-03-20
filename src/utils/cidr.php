@@ -52,6 +52,20 @@ class IpCIDR {
             $this->range = $this->getIPv6CIDRRange();
         }
     }
+    /**
+     * 验证某个 cidr字符串是否合法
+     */
+    static public function validate($cidr, &$message) {
+        try {
+            $temp = new IpCIDR($cidr);
+            $message = 'ok';
+            return true;
+        }
+        catch (Exception $e) {
+            $message = $e->getMessage();
+            return false;
+        } 
+    }
 
     /**
      * 得到当前的CIDR所表示的是IPv4还是IPv6
@@ -236,6 +250,15 @@ class IpCIDR {
 // $ipv6 = new IpCIDR('::2001:da8:ff3a:c88e', 119);
 // var_dump($ipv6->getRange());
 // var_dump($ipv6->isIpInRange('0000:0000:0000:0000:2001:0da8:ff3a:c8ff'));
+// var_dump(IpCIDR::validate('10.10.1.32/9', $message));
+// var_dump($message);
+// var_dump(IpCIDR::validate('10.10.1./9', $message));
+// var_dump($message);
+// var_dump(IpCIDR::validate('test', $message));
+// var_dump($message);
+// var_dump(IpCIDR::validate('::1', $message));
+// var_dump(IpCIDR::validate('::1/130', $message));
+// var_dump($message);
 
 
 
@@ -285,4 +308,46 @@ class IpCIDRFilter {
         }
         return null;
     }
+}
+
+
+/**
+ * 从数据库中加载CIDR过滤器列表
+ * @return array
+ */
+function getCIDRListFromMysql() {
+    include(__DIR__ . '/../results/telemetry_settings.php');
+    $cidrRuleList = [];
+    $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
+    $p = $conn->prepare('SELECT `cidr`, position, accessmethod, isp, ispinfo FROM  speedtest_cidrinfo ORDER BY `index` DESC, id DESC');
+    $p->execute();
+    $p->bind_result($cidr, $position, $accessMethod, $isp, $ispInfo);
+    while ($p->fetch()) {
+        $cidrRuleList[] = [
+            'rule' => $cidr,
+            'info' => [
+                'position' => $position,
+                'accessMethod' => $accessMethod,
+                'isp' => $isp,
+                'ispInfo' => $ispInfo
+            ]
+        ];
+    }
+    $p->close();
+    $conn->close();
+    $cidrFilterList = [];
+    for ($i = 0; $i < count($cidrRuleList); $i++) {
+        $currentRule = $cidrRuleList[$i];
+        if (isset($currentRule['rule']) && is_string($currentRule['rule'])) {
+            try {
+                $cidrFilterList[] = [
+                    'rule' => new IpCIDR($currentRule['rule']),
+                    'info' => $currentRule['info']
+                ];
+            } catch (Exception $e) {
+                // nothing to do
+            }
+        }
+    }
+    return $cidrFilterList;
 }

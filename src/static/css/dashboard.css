@@ -14,12 +14,9 @@
     margin: 0px 10px 0px 0px;
 }
 .date-range-picker {
-    min-width: 250px;
+    min-width: 300px;
 }
-.page[data-hash="/chart/useinfo"] > .row:nth-child(2), 
-.page[data-hash="/chart/uldlinfo"] > .row:nth-child(2),
-.page[data-hash="/chart/pjinfo"] > .row:nth-child(2)
-{
+.page[data-hash="/chart/line"] > .row:nth-child(2) {
     margin-top: 40px;    
     margin-bottom: 20px;
 }
@@ -29,6 +26,10 @@
 .page[data-hash="/chart/pie"] > .row:nth-child(4)
 {
     margin-top : 40px;
+}
+.page[data-hash="/chart/pareto"] > .row:nth-child(2)
+{
+    margin-top: 40px;
 }
 .box-header > .pie-dividedata-input-area {
     position: relative;
@@ -43,4 +44,28 @@
 }
 .text-center {
     text-align: center;
+}
+.box-header  small {
+    font-size: 15px;
+    display: inline-block;
+    padding-left: 4px;
+    font-weight: 300;
+}
+.form-group .required::after{
+    content: '*';
+    color: red;
+}
+#showCidrInfoModal {
+    margin-right: 10px;
+}
+.page[data-hash="/chart/line"] .box-header button {
+    margin-right: 10px;
+}
+
+.pie-dividedata-input-area .input-group,
+.pareto-dividedata-input-area .input-group,
+.pareto-dividedata-input-area button
+{
+    max-width: 300px;
+    margin-left: 20px;
 }

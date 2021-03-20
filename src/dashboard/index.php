@@ -13,12 +13,13 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/AdminLTE.min.css">
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <link rel="stylesheet" href="/static/css/skin-blue.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-editable.css">
     <link rel="stylesheet" href="/static/css/daterangepicker.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
@@ -47,7 +48,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
             <section class="sidebar">
                 <div class="user-panel">
                     <div class="pull-left image">
-                        <img src="/static/images/user.jpg" class="img-circle" alt="User Image">
+                        <img src="/static/img/user.jpg" class="img-circle" alt="User Image">
                     </div>
                     <div class="pull-left info">
                         <p>admin</p>
@@ -64,6 +65,19 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                     </li>
                     <li class="treeview">
                         <a href="javascript:;">
+                            <i class="fa fa-cog"></i>
+                            <span>系统设置</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="#/settings/cidr"><i class="fa"><strong>IP</strong></i>CIDR列表</a></li>
+                            <li><a href="#/settings/testpoints"><i class="fa fa-server"></i>测速节点</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="javascript:;">
                             <i class="fa fa-area-chart"></i>
                             <span>数据图表</span>
                             <span class="pull-right-container">
@@ -71,10 +85,9 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li><a href="#/chart/useinfo"><i class="fa fa-circle-o"></i>测速人数与次数</a></li>
-                            <li><a href="#/chart/uldlinfo"><i class="fa fa-circle-o"></i>上传下载速度</a></li>
-                            <li><a href="#/chart/pjinfo"><i class="fa fa-circle-o"></i>ping和jitter</a></li>
-                            <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比详情</a></li>
+                            <li><a href="#/chart/line"><i class="fa fa-circle-o"></i>测速情况变化曲线图</a></li>
+                            <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比饼状图</a></li>
+                            <li><a href="#/chart/pareto"><i class="fa fa-circle-o"></i>各项数据帕累托图</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -88,6 +101,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                 </h1>
             </div>
             <div id="routerView" class="content">
+                <!-- 首页 -->
                 <div class="page" data-hash="/index">
                     <div class="row">
                         <div class="col-lg-6">
@@ -236,6 +250,8 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </section>
                     </div>
                 </div>
+                <!-- 首页结束 -->
+                <!-- 测速历史查看页面 -->
                 <div class="page" data-hash="/history">
                     <div class="row">
                         <form role="form" class="col-lg-6 form-inline">
@@ -268,16 +284,18 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <div class="box box-primary">
                                 <div class="box-header with-border">
                                     <h3 class="box-title">测速历史记录</h3>
+                                    <div class="box-tools" id="tableToolArea"></div>
                                 </div>
                                 <div class="box-body">
                                     <table id="historyDataTable"></table>
                                 </div>
-                                <div class="box-footer" id="tableToolArea"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="page" data-hash="/chart/useinfo">
+                <!-- 测速历史查看页面结束 -->
+                <!-- 折线图页面 -->
+                <div class="page" data-hash="/chart/line">
                     <div class="row">
                         <form role="form" class="col-lg-12 form-inline">
                             <div class="form-group">
@@ -286,12 +304,12 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     <div class="input-group-addon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right date-range-picker" id="useinfoDatePicker">
+                                    <input type="text" class="form-control pull-right date-range-picker" id="lineChartDatePicker">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>时间步长:</label>
-                                <select class="form-control" id="useinfoStepSelector">
+                                <select class="form-control" id="lineChartStepSelector">
                                     <option value="single">一条</option>
                                     <option value="hour">一小时</option>
                                     <option value="day" selected>一天</option>
@@ -308,7 +326,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-3">
                             <div class="small-box bg-green">
                                 <div class="inner">
-                                    <h3 id="useinfoUserNum">0</h3>
+                                    <h3 id="lineChartUserNum">0</h3>
                                     <p>测速人数</p>
                                 </div>
                                 <div class="icon">
@@ -320,7 +338,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-3">
                             <div class="small-box bg-green">
                                 <div class="inner">
-                                    <h3 id="useinfoTestNum">0</h3>
+                                    <h3 id="lineChartTestNum">0</h3>
                                     <p>测速次数</p>
                                 </div>
                                 <div class="icon">
@@ -334,131 +352,27 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <i class="fa fa-area-chart"></i>统计图
-                                </div>
-                                <div class="box-body">
-                                    <canvas id="useinfoChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page" data-hash="/chart/uldlinfo">
-                    <div class="row">
-                        <form role="form" class="col-lg-12 form-inline">
-                            <div class="form-group">
-                                <label>数据时间范围:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-clock-o"></i>
+                                    <h3 class="box-title pull-left"><i class="fa fa-area-chart"></i>测速人数以及每人测速次数统计图</h3>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#useinfoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#useinfoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#useinfoChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
-                                    <input type="text" class="form-control pull-right date-range-picker" id="uldlinfoDatePicker">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>时间步长:</label>
-                                <select class="form-control" id="uldlinfoStepSelector">
-                                    <option value="single">一条</option>
-                                    <option value="hour">一小时</option>
-                                    <option value="day" selected>一天</option>
-                                    <option value="week">一周</option>
-                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-primary" id="uldlinfoChartButt">确认</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="uldlinfoUserNum">0</h3>
-                                    <p>测速人数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="person-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="uldlinfoTestNum">0</h3>
-                                    <p>测速次数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="speedometer-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="box box-primary">
-                                <div class="box-header with-border">
-                                    <i class="fa fa-area-chart"></i>统计图
                                 </div>
                                 <div class="box-body">
-                                    <canvas id="uldlinfoChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page" data-hash="/chart/pjinfo">
-                    <div class="row">
-                        <form role="form" class="col-lg-12 form-inline">
-                            <div class="form-group">
-                                <label>数据时间范围:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-clock-o"></i>
+                                    <div class="col-lg-10 col-lg-offset-1" id="useinfoChartArea" data-size="10">
+                                        <canvas id="useinfoChart"></canvas>
                                     </div>
-                                    <input type="text" class="form-control pull-right date-range-picker" id="pjinfoDatePicker">
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label>时间步长:</label>
-                                <select class="form-control" id="pjinfoStepSelector">
-                                    <option value="single">一条</option>
-                                    <option value="hour">一小时</option>
-                                    <option value="day" selected>一天</option>
-                                    <option value="week">一周</option>
-                                    <option value="dayHour" title="以一小时为单位，但是将每天的同一小时合并起来统计">一小时(合并)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <button class="btn btn-primary" id="pjinfoChartButt">确认</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="pjinfoUserNum">0</h3>
-                                    <p>测速人数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="person-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <div class="small-box bg-green">
-                                <div class="inner">
-                                    <h3 id="pjinfoTestNum">0</h3>
-                                    <p>测速次数</p>
-                                </div>
-                                <div class="icon">
-                                    <ion-icon class="f-white" name="speedometer-outline"></ion-icon>
-                                </div>
-                                <a href="javascript:;" class="small-box-footer"></a>
                             </div>
                         </div>
                     </div>
@@ -466,15 +380,61 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <i class="fa fa-area-chart"></i>统计图
+                                    <h3 class="box-title pull-left"><i class="fa fa-area-chart"></i><span>测速下载和上传速度统计图</span></h3>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#uldlinfoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#uldlinfoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#uldlinfoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="box-body">
-                                    <canvas id="pjinfoChart"></canvas>
+                                    <div class="col-lg-10 col-lg-offset-1" id="uldlinfoChartArea" data-size="10">
+                                        <canvas id="uldlinfoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left"><i class="fa fa-area-chart"></i>测速ping和jitter统计图</h3>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#pjinfoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#pjinfoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#pjinfoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="pjinfoChartArea" data-size="10">
+                                        <canvas id="pjinfoChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- 折线图页面结束 -->
+                <!-- 饼状图页面 -->
                 <div class="page" data-hash="/chart/pie">
                     <div class="row">
                         <form role="form" class="col-lg-12 form-inline">
@@ -496,14 +456,17 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title col-lg-2 pie-box-title">用户测速次数占比</h3>
-                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control pull-right" value="5, 10, 20" id="userTestDivisionInput" placeholder="请输入划分的区间,以逗号分隔">
+                                    <h3 class="box-title pull-left pie-box-title">用户测速次数占比</h3>
+                                    <div class="pull-right pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm pull-right">
+                                            <input type="text" class="form-control pull-right" value="1,5,10,20" id="userTestDivisionInput" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
                                         </div>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#userTestPieChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -521,14 +484,17 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title col-lg-2 pie-box-title">下载、上传速度占比</h3>
-                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control pull-right" id="dlulDivisionInput" value="100, 200, 500, 800, 1000" placeholder="请输入划分的区间,以逗号分隔">
+                                    <h3 class="pull-left box-title pie-box-title">下载、上传速度占比</h3>
+                                    <div class="pull-right pie-dividedata-input-area">
+                                        <div class="input-group input-group-sm pull-right">
+                                            <input type="text" class="form-control pull-right" id="dlulDivisionInput" value="8,64,200,500,1000" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
                                         </div>
+                                        <button class="btn btn-primary pull-right export-multiple-canvas" data-target="#dlPieChart|#ulPieChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -548,14 +514,17 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         <div class="col-lg-12">
                             <div class="box box-primary">
                                 <div class="box-header with-border">
-                                    <h3 class="box-title col-lg-2 pie-box-title">ping、jitter占比</h3>
-                                    <div class="box-tools col-lg-3 col-lg-offset-7 pie-dividedata-input-area">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control pull-right" id="pjDivisionInput" value="3, 5, 10, 100" placeholder="请输入划分的区间,以逗号分隔">
+                                    <h3 class="box-title pull-left pie-box-title">ping、jitter占比</h3>
+                                    <div class="pull-right pie-dividedata-input-area">
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="pjDivisionInput" value="3,10,50,100" placeholder="请输入划分的区间,以逗号分隔">
                                             <div class="input-group-btn">
                                                 <button type="submit" class="btn btn-default pie-division-butt"><i class="fa fa-check"></i></button>
                                             </div>
                                         </div>
+                                        <button class="btn btn-primary pull-right export-multiple-canvas" data-target="#pingPieChart|#jitterPieChart">
+                                            导出为PNG图片
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -572,6 +541,215 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                     </div>
                 </div>
+                <!-- 饼状图页面结束 -->
+                <!-- CIDR列表设置页面 -->
+                <div class="page" data-hash="/settings/cidr">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left"><span>CIDR列表</span><small>点击字段可修改内容</small></h3>
+                                    <div class="pull-right">
+                                        <div class="pull-right" id="cidrTableToolArea"></div>
+                                        <div class="pull-right"><button class="btn btn-primary" id="showCidrInfoModal">添加CIDR信息</button></div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table id="cidrTable" class="table-event-handler"></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CIDR列表设置页面结束 -->
+                <!-- 测速节点设置页面 -->
+                <div class="page" data-hash="/settings/testpoints">
+                    <div class="row">
+                        <div class="col-lg-12">
+                        Building!
+                        </div>
+                    </div>
+                </div>
+                <!-- 测速节点设置页面结束 -->
+                <!-- 测速数据帕累托图页面 -->
+                <div class="page" data-hash="/chart/pareto">
+                    <div class="row">
+                        <form role="form" class="col-lg-12 form-inline">
+                            <div class="form-group">
+                                <label>数据时间范围:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right date-range-picker" id="paretoinfoDatePicker">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" id="paretoinfoChartButt">确认</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">每位用户测速次数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="paretoUserNumDivisionInput" value="1,5,10,20" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pareto-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#useNumsParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#useNumsParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#useNumsParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="useNumsParetoChartArea" data-size="10">
+                                        <canvas id="useNumsParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">下载速度各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="paretoDlulDivisionInput" value="8,64,200,500,1000" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pareto-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#dlParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#dlParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#dlParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="dlParetoChartArea"data-size="10">
+                                        <canvas id="dlParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">上传速度各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#ulParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#ulParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#ulParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="ulParetoChartArea" data-size="10">
+                                        <canvas id="ulParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">ping各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <div class="input-group pull-right input-group-sm">
+                                            <input type="text" class="form-control pull-right" id="paretoPjDivisionInput" value="3,5,10,100" placeholder="请输入划分的区间,以逗号分隔">
+                                            <div class="input-group-btn">
+                                                <button type="submit" class="btn btn-default pareto-division-butt"><i class="fa fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#pingParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#pingParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#pingParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="pingParetoChartArea" data-size="10">
+                                        <canvas id="pingParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left">jitter各个区间人数</h3>
+                                    <div class="pull-right pareto-dividedata-input-area">
+                                        <button type="button" class="btn btn-default pull-right" data-widget="collapse" data-toggle="tooltip" title="折叠" data-original-title="Collapse">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-minus" data-selector="#jitterParetoChartArea">
+                                            <i class="fa fa-search-minus"></i>
+                                        </button>
+                                        <button class="btn btn-default pull-right col-size-plus" data-selector="#jitterParetoChartArea">
+                                            <i class="fa fa-search-plus"></i>
+                                        </button>
+                                        <button class="btn btn-primary pull-right export-canvas" data-target="#jitterParetoChart">
+                                            导出为PNG图片
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="col-lg-10 col-lg-offset-1" id="jitterParetoChartArea" data-size="10">
+                                        <canvas id="jitterParetoChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 测速数据帕累托图页面结束 -->
+
             </div>
         </div>
         <div class="main-footer">
@@ -580,6 +758,47 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
             <strong>Powered by <a href="https://github.com/essayZW/speedtest" target="_blank">essay</a></strong>
         </div>
     </div>
+
+    <!-- CIDR info modal start -->
+    <div class="modal fade" id="cidrModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">CIDR信息填写</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label for="cidrInput" class="required">CIDR</label>
+                            <input type="text" class="form-control" id="cidrInput" placeholder="形如10.0.0.0/8" name="cidr" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrPositionInput">接入位置</label></label>
+                            <input type="text" class="form-control" id="cidrPositionInput" placeholder="CIDR对应的IP地址的接入地址，可以为空" name="position">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrAccessMethodInput">接入方式</label>
+                            <input type="text" class="form-control" id="cidrAccessMethodInput" placeholder="CIDR对应的IP地址的接入方式，可以为空" name="accessMethod">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrIspInput">ISP</label>
+                            <input type="text" class="form-control" id="cidrIspInput" placeholder="CIDR对应的ISP, 可以为空" name="isp">
+                        </div>
+                        <div class="form-group">
+                            <label for="cidrIspInfoInput">ISP信息</label>
+                            <input type="text" class="form-control" id="cidrIspInfoInput" placeholder="详细的ISP信息，可以为空" name="ispinfo">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="addCidrInfo">添加</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- CIDR info modal end-->
 
     <!-- message modal start -->
     <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -598,11 +817,14 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
     </div>
     <!-- message modal end -->
 
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-table@1.18.2/dist/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-table.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-table-editable.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-table-zh-CN.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-editable.min.js"></script>
     <script src="/static/js/chart.min.js"></script>
     <script src="/static/js/palette.js"></script>
     <script src="/static/js/adminlte.min.js"></script>

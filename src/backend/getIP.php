@@ -27,41 +27,8 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 
 // $ip = preg_replace("/^::ffff:/", "", $ip);
 include_once(__DIR__ . '/../utils/cidr.php');
-include_once(__DIR__ . '/../results/telemetry_settings.php');
 // 得到CIDR 过滤列表
-$cidrRuleList = [];
-$conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
-$p = $conn->prepare('SELECT `cidr`, position, accessmethod, isp, ispinfo FROM  speedtest_cidrinfo');
-$p->execute();
-$p->bind_result($cidr, $position, $accessMethod, $isp, $ispInfo);
-while ($p->fetch()) {
-    $cidrRuleList[] = [
-        'rule' => $cidr,
-        'info' => [
-            'position' => $position,
-            'accessMethod' => $accessMethod,
-            'isp' => $isp,
-            'ispInfo' => $ispInfo
-        ]
-    ];
-}
-$p->close();
-$conn->close();
-$cidrFilterList = [];
-for ($i = 0; $i < count($cidrRuleList); $i ++) {
-    $currentRule = $cidrRuleList[$i];
-    if (isset($currentRule['rule']) && is_string($currentRule['rule'])) {
-        try {
-            $cidrFilterList[] = [
-                'rule' => new IpCIDR($currentRule['rule']),
-                'info' => $currentRule['info']
-            ];
-        }
-        catch (Exception $e) {
-            // nothing to do
-        }
-    }
-}
+$cidrFilterList = getCIDRListFromMysql();
 $filter = new IpCIDRFilter($cidrFilterList);
 $matchedIndex = $filter->test($ip);
 if (isset($matchedIndex[0])) {
