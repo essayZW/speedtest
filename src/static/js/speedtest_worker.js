@@ -310,11 +310,16 @@ function getIp(done) {
     tlog("IP: " + xhr.responseText + ", took " + (new Date().getTime() - startT) + "ms");
     try {
       var data = JSON.parse(xhr.responseText);
-      clientIp = data.ip ? data.ip : 'Unknown';
-      isp = data.isp ? data.isp : 'Unknown';
-      ispInfo = data.ispInfo ? data.ispInfo : 'Unknown';
-      ipPosition = data.position ? data.ispInfo : 'Unknown';
-      ipAccessMethod = data.accessMethod ? data.accessMethod : 'Unknown';
+      clientIp = data.ip;
+      if (clientIp == null || clientIp == undefined) clientIp = 'Unknown';
+      isp = data.isp;
+      if (isp == null || isp == undefined) isp = 'Unknown';
+      ispInfo = data.ispInfo;
+      if (ispInfo == null || ispInfo == undefined) ispInfo = 'Unknown';
+      ipPosition = data.position;
+      if (ipPosition == null || ipPosition == undefined) ipPosition = 'Unknown';
+      ipAccessMethod = data.accessMethod;
+      if (ipAccessMethod == null || ipPosition == undefined) ipAccessMethod = 'Unknown';
     } catch (e) {
       clientIp = xhr.responseText;
       ispInfo = "";
