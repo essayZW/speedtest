@@ -1,5 +1,8 @@
 <?php
 /**
+ * 该文件主要提供按照指定的时间布长分割查询一段时间内的测速记录
+ * 并将每一小段内的测速数据进行平均值计算
+ * 
  * param: start_time
  * description: 查询的记录开始时间
  *
@@ -16,6 +19,7 @@
  * description: 是否在返回数据中携带具体的测速记录数据
  */
 include_once("./init.php");
+needAdmin();
 try {
     $startTime = get($_GET, 'start_time');
     if ($startTime == null) $startTime = date("Y-m-d", strtotime("-6 day")) . ' 0:0:0';

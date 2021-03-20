@@ -1,5 +1,9 @@
 <?php
+/**
+ * 该文件返回指定的一段时间内的测速平均数据
+ */
 include_once("./init.php");
+needAdmin();
 try {
     $startTime = get($_GET, 'start_time');
     if ($startTime == null) $startTime = date("Y-m-d", strtotime("-0 day")) . ' 0:0:0';
@@ -25,7 +29,7 @@ $p->bind_result($testNums, $adl, $aul, $aping, $ajitter);
 $p->fetch();
 $p->close();
 
-$p = $conn->prepare("SELECT count(*) FROM (SELECT * FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ?) subquery");
+$p = $conn->prepare("SELECT count(*) FROM (SELECT userid FROM speedtest_infos WHERE `timestamp` BETWEEN ? AND ? GROUP BY userid) subquery");
 $p->bind_param("ss", $startTime, $endTime);
 $p->execute();
 $p->store_result();

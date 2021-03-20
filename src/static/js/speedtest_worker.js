@@ -16,6 +16,10 @@ var dlProgress = 0; //progress of download test 0-1
 var ulProgress = 0; //progress of upload test 0-1
 var pingProgress = 0; //progress of ping+jitter test 0-1
 var testId = null; //test ID (sent back by telemetry if used, null otherwise)
+// these info are provided by CIDR list
+var ipPosition = ""; // client's IP access position
+var ipAccessMethod = ""; // the access method of client's network 
+var isp = ""; // client ip isp
 
 var log = ""; //telemetry log
 function tlog(s) {
@@ -97,6 +101,9 @@ this.addEventListener("message", function (e) {
         ulStatus: ulStatus,
         pingStatus: pingStatus,
         clientIp: clientIp,
+        isp:isp,
+        ipPosition: ipPosition,
+        ipAccessMethod: ipAccessMethod,
         jitterStatus: jitterStatus,
         dlProgress: dlProgress,
         ulProgress: ulProgress,
@@ -257,6 +264,9 @@ this.addEventListener("message", function (e) {
     pingStatus = "";
     jitterStatus = "";
     clientIp = "";
+    isp = "";
+    ipPosition = "";
+    ipAccessMethod = "";
     dlProgress = 0;
     ulProgress = 0;
     pingProgress = 0;
@@ -300,8 +310,11 @@ function getIp(done) {
     tlog("IP: " + xhr.responseText + ", took " + (new Date().getTime() - startT) + "ms");
     try {
       var data = JSON.parse(xhr.responseText);
-      clientIp = data.ip + ' - ' + data.isp;
+      clientIp = data.ip;
+      isp = data.isp;
       ispInfo = data.ispInfo;
+      ipPosition = data.position;
+      ipAccessMethod = data.accessMethod;
     } catch (e) {
       clientIp = xhr.responseText;
       ispInfo = "";
@@ -702,7 +715,10 @@ function sendTelemetry(done) {
   };
   xhr.open("POST", settings.url_telemetry + url_sep(settings.url_telemetry) + (settings.mpot ? "cors=true&" : "") + "r=" + Math.random(), true);
   var telemetryIspInfo = {
-    processedString: clientIp,
+    ip: clientIp,
+    isp: isp,
+    position: ipPosition,
+    accessMethod: ipAccessMethod,
     rawIspInfo: typeof ispInfo === "object" ? ispInfo : ""
   };
   try {
