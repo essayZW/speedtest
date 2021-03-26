@@ -746,6 +746,9 @@ eventDelegation('.table-event-handler', 'button.table-save', 'click', function(e
 });
 
 eventDelegation('.table-event-handler', 'button.table-delete', 'click', (e, _this) => {
+  if (!confirm('确定删除该CIDR信息?')) {
+    return;
+  }
   let targetId = _this.dataset.tableid;
   let tableIndex = _this.dataset.index;
   let currentTableData = $(`#${targetId}`).bootstrapTable('getData', false);
