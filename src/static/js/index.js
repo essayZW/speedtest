@@ -132,3 +132,44 @@ function initUI() {
   I("ipAndIsp").textContent = "";
   I("ipPositionAndAccessMethod").textContent = "";
 }
+// 加载测速节点列表
+axios.get('/api/testpoints.php', {
+  params: {
+    operation: 'select'
+  }
+}).then((rep) => {
+  let serverLists = rep.data.data;
+  if (serverLists == undefined || serverLists.length == 0) {
+    // default test point
+    serverLists = [
+      {
+      'name': window.defaultServerInfo.name,
+      'server': window.location.protocol + '//' + window.location.hostname,
+      'port': window.location.port,
+      'dlURL': '/backend/garbage.php',
+      'ulURL': '/backend/empty.php',
+      'pingURL': '/backend/empty.php',
+      'getIpURL': '/backend/getIP.php'
+      }
+    ];
+  }
+  s.addTestPoints(serverLists);
+  // default no auto server select
+  s.setSelectedServer(serverLists[0]);
+  // update ui
+  let serverListSelector = document.querySelector('#serverList');
+  for (let i = 0; i < serverLists.length; i++) {
+    let option = document.createElement('option');
+    option.innerHTML = serverLists[i].name;
+    option.value = i;
+    serverListSelector.appendChild(option);
+  }
+  serverListSelector.addEventListener('change', function() {
+    let index = this.selectedOptions[0].value;
+    index = parseInt(index);
+    s.setSelectedServer(s._serverList[index]);
+  });
+}).catch((error) => {
+  console.error(error);
+  alert('测速节点列表加载失败!');
+});

@@ -10,7 +10,11 @@ require_once('./utils/validation.php');
     <link rel="stylesheet" href="/static/css/index.css">
     <link rel="shortcut icon" href="favicon.ico">
     <script type="text/javascript" src="/static/js/speedtest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        // Define default test point server name
+        window.defaultServerInfo = {};
+        window.defaultServerInfo.name = "<?= getenv('TITLE') ?: 'LibreSpeed Example' ?>";
         //INITIALIZE SPEEDTEST
         var s = new Speedtest(); //create speedtest object
         // for dev
@@ -37,7 +41,14 @@ require_once('./utils/validation.php');
     <h1><?= getenv('TITLE') ?: 'LibreSpeed Example' ?></h1>
     <div id="testWrapper">
         <div id="startStopBtn" onclick="startStop()"></div><br />
-        <?php if (getenv("TELEMETRY") == "true") { ?>
+        <div id="serverSelectArea">
+            <form action="javascript:;">
+                <label for="serverList">Server:</label>
+                <select id="serverList">
+                </select>
+            </form>
+        </div>
+        <?php if (getenv("TELEMETRY") != "true") { ?>
             <a class="privacy" href="#" onclick="I('privacyPolicy').style.display=''">Privacy</a>
         <?php } ?>
         <div id="test">

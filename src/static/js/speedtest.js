@@ -86,19 +86,28 @@ Speedtest.prototype = {
         throw "Name string missing from server definition (name)";
       if (typeof server.server !== "string")
         throw "Server address string missing from server definition (server)";
-      if (server.server.charAt(server.server.length - 1) != "/")
-        server.server += "/";
-      if (server.server.indexOf("//") == 0)
-        server.server = location.protocol + server.server;
+      if (server.server.charAt(server.server.length - 1) == "/")
+        server.server = server.server.substr(0, server.server.length - 1);
+      if (! /^(http:\/\/|https:\/\/).+$/.test(server.server))
+        throw "Server address string must start with http:// or https://";
       if (typeof server.dlURL !== "string")
         throw "Download URL string missing from server definition (dlURL)";
+      if (server.dlURL.charAt(0) != '/')
+        server.dlURL = '/' + server.dlURL
       if (typeof server.ulURL !== "string")
         throw "Upload URL string missing from server definition (ulURL)";
+      if (server.ulURL.charAt(0) != '/')
+        server.ulURL = '/' + server.ulURL
       if (typeof server.pingURL !== "string")
         throw "Ping URL string missing from server definition (pingURL)";
+      if (server.pingURL.charAt(0) != '/')
+        server.pingURL = '/' + server.pingURL
       if (typeof server.getIpURL !== "string")
         throw "GetIP URL string missing from server definition (getIpURL)";
+      if (server.getIpURL.charAt(0) != '/')
+        server.getIpURL = '/' + server.getIpURL
     } catch (e) {
+      console.error(e);
       throw "Invalid server definition";
     }
   },
@@ -349,13 +358,13 @@ Speedtest.prototype = {
         throw "When using multiple points of test, you must call selectServer before starting the test";
     if (this._state == 2) {
       this._settings.url_dl =
-        this._selectedServer.server + this._selectedServer.dlURL;
+        this._selectedServer.server + ':' + this._selectedServer.port + this._selectedServer.dlURL;
       this._settings.url_ul =
-        this._selectedServer.server + this._selectedServer.ulURL;
+        this._selectedServer.server + ':' + this._selectedServer.port + this._selectedServer.ulURL;
       this._settings.url_ping =
-        this._selectedServer.server + this._selectedServer.pingURL;
+        this._selectedServer.server + ':' + this._selectedServer.port + this._selectedServer.pingURL;
       this._settings.url_getIp =
-        this._selectedServer.server + this._selectedServer.getIpURL;
+        this._selectedServer.server + ':' + this._selectedServer.port + this._selectedServer.getIpURL;
       if (typeof this._originalExtra !== "undefined") {
         this._settings.telemetry_extra = JSON.stringify({
           server: this._selectedServer.name,

@@ -566,7 +566,18 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                 <div class="page" data-hash="/settings/testpoints">
                     <div class="row">
                         <div class="col-lg-12">
-                        Building!
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title pull-left"><span>测速节点列表</span><small>点击字段可修改内容</small></h3>
+                                    <div class="pull-right">
+                                        <div class="pull-right" id="testPointsTableToolArea"></div>
+                                        <div class="pull-right"><button class="btn btn-primary" id="showTestPointsInfoModal">添加测速节点信息</button></div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table id="textPointsTable" class="table-event-handler"></table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -799,6 +810,23 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
         </div>
     </div>
     <!-- CIDR info modal end-->
+    <!-- testPoints info modal start -->
+    <div class="modal fade" id="testPointsInfoModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-herader">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">测速节点信息填写</h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="addTestPointsInfo">添加</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- testPoints info modal end-->
 
     <!-- message modal start -->
     <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-hidden="true">

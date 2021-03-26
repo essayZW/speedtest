@@ -151,3 +151,12 @@ a.privacy{
     line-height: 60px;
     padding:0px 10px;
 }
+
+#serverSelectArea {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#serverSelectArea select {
+    max-width: 300px;
+}
