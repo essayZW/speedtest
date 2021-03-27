@@ -287,7 +287,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     <div class="box-tools" id="tableToolArea"></div>
                                 </div>
                                 <div class="box-body">
-                                    <table id="historyDataTable"></table>
+                                    <table id="historyDataTable" class="table-event-handler"></table>
                                 </div>
                             </div>
                         </div>

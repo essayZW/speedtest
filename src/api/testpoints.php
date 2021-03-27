@@ -7,7 +7,7 @@ switch ($operation) {
     case 'select':
         $repData = [];
         $p = $conn->prepare('SELECT id, `name`, `server`, port, dlURL, ulURL, pingURL, getIpURL
-                            FROM speedtest_testpoints');
+                            FROM speedtest_testpoints WHERE `status` = 1');
         $p->execute();
         $p->bind_result($id, $name, $server, $port, $dlURL, $ulURL, $pingURL, $getIpURL);
         while ($p->fetch()) {
@@ -137,7 +137,7 @@ switch ($operation) {
         }
         $id = (int) $id;
         try {
-            $p = $conn->prepare('DELETE FROM speedtest_testpoints WHERE id = ?');
+            $p = $conn->prepare('UPDATE speedtest_testpoints SET `status` = 0 WHERE id = ?');
             if (!$p) {
                 throw new Exception($conn->error);
             }

@@ -226,10 +226,6 @@ let config = {
           sidePagination: "server",
           columns: [
             {
-              field: 'id',
-              title: 'id'
-            },
-            {
               field: 'unumber',
               title: '学号'
             },
@@ -268,6 +264,18 @@ let config = {
             {
               field: 'time',
               title: '测速时间'
+            },
+            {
+              field: 'serverName',
+              title: '测速节点名称'
+            },
+            {
+              title: '操作',
+              formatter: (value, row, index) => {
+                return `
+                <button class="btn btn-danger table-delete" data-api="/api/speedLog.php" data-tableid="historyDataTable" data-index="${index}">删除</button>
+                `;
+              }
             }
           ],
           queryParams: (params) => {
