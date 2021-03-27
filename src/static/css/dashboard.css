@@ -55,7 +55,9 @@
     content: '*';
     color: red;
 }
-#showCidrInfoModal {
+#showCidrInfoModal,
+#showTestPointsInfoModal
+{
     margin-right: 10px;
 }
 .page[data-hash="/chart/line"] .box-header button {

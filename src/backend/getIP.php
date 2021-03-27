@@ -38,48 +38,6 @@ if (isset($matchedIndex[0])) {
     die();
 }
 
-// $school_cidr_info = json_encode(['processedString' => $ip . " - private IPv4 access", 'rawIspInfo' => ""]);
-// if(preg_match('/^202\.4\.1(2[8-9]|[3-5]\d)\./', $ip) === 1) { // IPv4 202.4.128.0/19
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(preg_match('/^219\.242\.(9[6-9]|10\d|111)\./', $ip) === 1) { // IPv4 219.242.96.0/20
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(preg_match('/^219\.225\.(\d|1[0-5])\./', $ip) === 1) { // IPv4 219.225.0.0/20
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(preg_match('/^222\.199\.2(2[4-9]|[3-4]\d|5[0-5])\./', $ip) === 1) { // IPv4 222.199.224.0/19
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(preg_match('/^121\.195\.1(2[8-9]|[3-5]\d)\./', $ip) === 1) { // IPv4 121.195.128.0/19
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(preg_match('/^58\.195\.88\.(6[4-9]|7\d)$/', $ip) === 1) { // IPv4 58.195.88.64/28
-//     echo $school_cidr_info;
-//     die();
-// }
-// $school_cidr_info = json_encode(['processedString' => $ip . " - private IPv6 access", 'rawIspInfo' => ""]);
-// if(strpos($ip, '2001:0250:0207:') === 0) { // IPv6 2001:250:207::/48
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(strpos($ip, '0010:0001:0001:0007:' === 0)) { // IPv6 10:1:1:7::/64
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(strpos($ip, '2001:0da8:ff3a:c88e:') === 0) { // IPv6 2001:da8:ff3a:c88e::/64
-//     echo $school_cidr_info;
-//     die();
-// }
-// if(strpos($ip, '2001:0da8:0237:') === 0) { // IPv6 2001:da8:237::/48
-//     echo $school_cidr_info;
-//     die();
-// }
 /**
  * Optimized algorithm from http://www.codexworld.com
  *

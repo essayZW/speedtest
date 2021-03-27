@@ -5,28 +5,33 @@ require_once('./utils/validation.php');
 <html>
 
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
-<meta charset="UTF-8" />
-<link rel="stylesheet" href="/static/css/index.css">
-<link rel="shortcut icon" href="favicon.ico">
-<script type="text/javascript" src="/static/js/speedtest.js"></script>
-<script>
-//INITIALIZE SPEEDTEST
-var s=new Speedtest(); //create speedtest object
-<?php if(getenv("TELEMETRY")=="true"){ ?>
-s.setParameter("telemetry_level","basic");
-<?php } ?>
-<?php if(getenv("DISABLE_IPINFO")=="true"){ ?>
-s.setParameter("getIp_ispInfo","false");
-<?php } ?>
-<?php if(getenv("DISTANCE")){ ?>
-s.setParameter("getIp_ispInfo_distance","<?=getenv("DISTANCE") ?>");
-<?php } ?>
-</script>
-<script src="/static/js/index.js"></script>
-<style type="text/css">
-</style>
-<title><?= getenv('TITLE') ?: 'LibreSpeed Example' ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="shortcut icon" href="favicon.ico">
+    <script type="text/javascript" src="/static/js/speedtest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Define default test point server name
+        window.defaultServerInfo = {};
+        window.defaultServerInfo.name = "<?= getenv('TITLE') ?: 'LibreSpeed Example' ?>";
+        //INITIALIZE SPEEDTEST
+        var s = new Speedtest(); //create speedtest object
+        // for dev
+        <?php if (getenv("TELEMETRY") == "true") { ?>
+            s.setParameter("telemetry_level", "basic");
+        <?php } ?>
+        <?php if (getenv("DISABLE_IPINFO") == "true") { ?>
+            s.setParameter("getIp_ispInfo", "false");
+        <?php } ?>
+        <?php if (getenv("DISTANCE")) { ?>
+            s.setParameter("getIp_ispInfo_distance", "<?= getenv("DISTANCE") ?>");
+        <?php } ?>
+    </script>
+    <script src="/static/js/index.js"></script>
+    <style type="text/css">
+    </style>
+    <title><?= getenv('TITLE') ?: 'LibreSpeed Example' ?></title>
 </head>
 
 <body>
@@ -36,6 +41,13 @@ s.setParameter("getIp_ispInfo_distance","<?=getenv("DISTANCE") ?>");
     <h1><?= getenv('TITLE') ?: 'LibreSpeed Example' ?></h1>
     <div id="testWrapper">
         <div id="startStopBtn" onclick="startStop()"></div><br />
+        <div id="serverSelectArea">
+            <div>
+                <label for="serverList">Server:</label>
+                <select id="serverList">
+                </select>
+            </div>
+        </div>
         <?php if (getenv("TELEMETRY") == "true") { ?>
             <a class="privacy" href="#" onclick="I('privacyPolicy').style.display=''">Privacy</a>
         <?php } ?>
@@ -79,7 +91,7 @@ s.setParameter("getIp_ispInfo_distance","<?=getenv("DISTANCE") ?>");
         </div>
         <a href="#" onclick="I('netCommonsense').style.display='';">网速知识</a>
         <a href="/results/history.php" target="_blank">测速历史</a>
-        <a href="https://github.com/librespeed/speedtest">Source code</a>
+        <a href="https://github.com/essayZW/speedtest">Source code</a>
     </div>
     <div id="privacyPolicy" style="display:none">
         <h2>Privacy Policy</h2>
@@ -96,6 +108,8 @@ s.setParameter("getIp_ispInfo_distance","<?=getenv("DISTANCE") ?>");
             <li>Approximate location (inferred from IP address, not GPS)</li>
             <li>User agent and browser locale</li>
             <li>Test log (contains no personal information)</li>
+            <li>Login ID</li>
+            <li>Test point server ID</li>
         </ul>
         </p>
         <h4>How we use the data</h4>

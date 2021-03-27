@@ -109,9 +109,10 @@ switch ($operation) {
             ]);
             break;
         }
-        $p = $conn->prepare('INSERT INTO speedtest_cidrinfo (`cidr`, position, accessmethod, isp, ispinfo)
-                                VALUES (?, ?, ?, ?, ?)');
-        $p->bind_param('sssss', $cidr, $position, $accessMethod, $isp, $ispinfo);
+        $index = (new IpCIDR($cidr))->getPrefixLength();
+        $p = $conn->prepare('INSERT INTO speedtest_cidrinfo (`cidr`, position, accessmethod, isp, ispinfo, `index`)
+                                VALUES (?, ?, ?, ?, ?, ?)');
+        $p->bind_param('sssssi', $cidr, $position, $accessMethod, $isp, $ispinfo, $index);
         $p->execute();
         $affectNums = $p->affected_rows;
         $p->close();
@@ -161,11 +162,13 @@ switch ($operation) {
             ]);
             break;
         }
+        // 在此使用CIDR所能表示的IP数量来作为其优先级
+        // 数量越多，优先级越低
         $id = (int) $id;
-
+        $index = (new IpCIDR($cidr))->getPrefixLength();
         $p = $conn->prepare('UPDATE speedtest_cidrinfo SET `cidr` = ?, position = ?, accessmethod = ?,
-                            isp = ?, ispinfo = ? WHERE id = ?');
-        $p->bind_param('sssssi', $cidr, $position, $accessMethod, $isp, $ispinfo, $id);
+                            isp = ?, ispinfo = ?, `index` = ? WHERE id = ?');
+        $p->bind_param('sssssii', $cidr, $position, $accessMethod, $isp, $ispinfo, $index, $id);
         $p->execute();
         $affectedNums = $p->affected_rows;
         $p->close();
