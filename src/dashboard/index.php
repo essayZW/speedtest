@@ -575,7 +575,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <table id="textPointsTable" class="table-event-handler"></table>
+                                    <table id="testPointsTable" class="table-event-handler"></table>
                                 </div>
                             </div>
                         </div>
@@ -661,7 +661,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <div class="col-lg-10 col-lg-offset-1" id="dlParetoChartArea"data-size="10">
+                                    <div class="col-lg-10 col-lg-offset-1" id="dlParetoChartArea" data-size="10">
                                         <canvas id="dlParetoChart"></canvas>
                                     </div>
                                 </div>
@@ -811,14 +811,45 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
     </div>
     <!-- CIDR info modal end-->
     <!-- testPoints info modal start -->
-    <div class="modal fade" id="testPointsInfoModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="testPointModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-herader">
+                <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">测速节点信息填写</h4>
                 </div>
-                <div class="modal-body"></div>
+                <div class="modal-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label for="pointNameInput" class="required">测速节点名称:</label>
+                            <input type="text" class="form-control" name="name" id="pointNameInput" placeholder="测速节点名称" require>
+                        </div>
+                        <div class="form-group">
+                            <label for="pointServerInput" class="required">测速节点地址:</label>
+                            <input type="text" class="form-control" name="server" id="pointServerInput" placeholder="测速节点地址，必须以http://或者https://开头" require>
+                        </div>
+                        <div class="form-group">
+                            <label for="pointPortInput">测速节点端口:</label>
+                            <input type="number" class="form-control" name="port" id="pointPortInput" placeholder="测速节点端口" value="80">
+                        </div>
+                        <div class="form-group">
+                            <label for="pointDlURLInput">测速节点下载接口地址:</label>
+                            <input type="text" class="form-control" name="dlURL" id="pointDlURLInput" placeholder="必须以 / 开头" value="/garbage.php">
+                        </div>
+                        <div class="form-group">
+                            <label for="pointUlURLInput">测速节点上传接口地址:</label>
+                            <input type="text" class="form-control" name="ulURL" id="pointUlURLInput" placeholder="必须以 / 开头" value="/empty.php">
+                        </div>
+                        <div class="form-group">
+                            <label for="pointPingURLInput">测速节点ping测试接口地址:</label>
+                            <input type="text" class="form-control" name="pingURL" id="pointPingURLInput" placeholder="必须以 / 开头" value="/empty.php">
+                        </div>
+                        <div class="form-group">
+                            <label for="pointIpURLInput">测速节点IP信息获取接口地址:</label>
+                            <input type="text" class="form-control" name="getIpURL" id="pointIpURLInput" placeholder="必须以 / 开头" value="/getIP.php">
+                        </div>
+                    </form>
+                </div>
                 <div class="modal-footer">
                     <button class="btn btn-success" id="addTestPointsInfo">添加</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>

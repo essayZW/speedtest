@@ -42,11 +42,11 @@ require_once('./utils/validation.php');
     <div id="testWrapper">
         <div id="startStopBtn" onclick="startStop()"></div><br />
         <div id="serverSelectArea">
-            <form action="javascript:;">
+            <div>
                 <label for="serverList">Server:</label>
                 <select id="serverList">
                 </select>
-            </form>
+            </div>
         </div>
         <?php if (getenv("TELEMETRY") != "true") { ?>
             <a class="privacy" href="#" onclick="I('privacyPolicy').style.display=''">Privacy</a>

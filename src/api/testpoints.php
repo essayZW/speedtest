@@ -57,18 +57,18 @@ switch ($operation) {
             $p->execute();
         }
         catch (Exception $e) {
-            $rep['message'] = 'insert fail (SQL error)';
+            $rep['info']['message'] = 'insert fail (SQL error)';
             $rep['status'] = false;
             echo json_encode($rep);
             break;
         }
         if ($p->affected_rows > 0) {
             $rep['status'] = true;
-            $rep['message'] = 'success';
+            $rep['info']['message'] = 'success';
         }
         else {
             $rep['status'] = false;
-            $rep['message'] = 'insert fail';
+            $rep['info']['message'] = 'insert fail';
         }
         echo json_encode($rep);
         break;
@@ -109,18 +109,18 @@ switch ($operation) {
             $p->execute();
         }
         catch (Exception $e) {
-            $rep['message'] = 'update fail (SQL error): '. $e->getMessage();
+            $rep['info']['message'] = 'update fail (SQL error): '. $e->getMessage();
             $rep['status'] = false;
             echo json_encode($rep);
             break;
         }
         if ($p->affected_rows > 0) {
             $rep['status'] = true;
-            $rep['message'] = 'success';
+            $rep['info']['message'] = 'success';
         }
         else {
             $rep['status'] = false;
-            $rep['message'] = 'update fail';
+            $rep['info']['message'] = 'update fail';
         }
         echo json_encode($rep);
         break;
@@ -138,6 +138,9 @@ switch ($operation) {
         $id = (int) $id;
         try {
             $p = $conn->prepare('DELETE FROM speedtest_testpoints WHERE id = ?');
+            if (!$p) {
+                throw new Exception($conn->error);
+            }
             $p->bind_param('i', $id);
             $p->execute();
         }
@@ -194,28 +197,30 @@ function validateParams() {
     $server = get($_POST, 'server');
     // default server port is 80
     $port = (int) get($_POST, 'port', 80);
-    $dlURL = get($_POST, 'dlURL', '/backend/garbage.php');
-    $ulURL = get($_POST, 'ulURL', '/backend/empty.php');
-    $pingURL = get($_POST, 'pingURL', '/backend/empty.php');
-    $getIpURL = get($_POST, 'getIpURL', '/backend/getIP.php');
+    $dlURL = get($_POST, 'dlURL', '/garbage.php');
+    $ulURL = get($_POST, 'ulURL', '/empty.php');
+    $pingURL = get($_POST, 'pingURL', '/empty.php');
+    $getIpURL = get($_POST, 'getIpURL', '/getIP.php');
     $rep = [
         'status' => false,
-        'message' => '',
+        'info' => [
+            'message' => ""
+        ],
         'data' => []
     ];
 
     $checkFlag = false;
     if (!$name) {
-        $rep['message'] = 'need testpoints name';
+        $rep['info']['message'] = 'need testpoints name';
     } else if (!$server) {
-        $rep['message'] = 'need testpoints server address';
+        $rep['info']['message'] = 'need testpoints server address';
     } else if ($port < 0 || $port > 65535) {
-        $rep['message'] = 'server port must between 0 and 65535';
+        $rep['info']['message'] = 'server port must between 0 and 65535';
     } else if (
         !is_string($name) || !is_string($dlURL) || !is_string($ulURL)
         || !is_string($pingURL) || !is_string($getIpURL)
     ) {
-        $rep['message'] = 'invalid params';
+        $rep['info']['message'] = 'invalid params';
     } else {
         $checkFlag = true;
     }
