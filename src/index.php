@@ -108,6 +108,8 @@ require_once('./utils/validation.php');
             <li>Approximate location (inferred from IP address, not GPS)</li>
             <li>User agent and browser locale</li>
             <li>Test log (contains no personal information)</li>
+            <li>Login ID</li>
+            <li>Test point server ID</li>
         </ul>
         </p>
         <h4>How we use the data</h4>
