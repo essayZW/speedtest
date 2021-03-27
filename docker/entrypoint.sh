@@ -20,7 +20,7 @@ rm -rf /var/www/html/backend.php
 sed -i s/\$IPINFO_APIKEY=\"\"/\$IPINFO_APIKEY=\"$IPINFO_APIKEY\"/g /var/www/html/backend/getIP_ipInfo_apikey.php
 
 # Apply Telemetry settings when running in frontend mode and telemetry is enabled
-if [[ "$TELEMETRY" == "true" && "$MODE" == "frontend" ]]; then
+if [[ "$TELEMETRY" == "true" && ( "$MODE" == "frontend" || "$MODE" == "backend" ) ]]; then
 
   sed -i s/\$stats_password=\".*\"/\$stats_password=\"$PASSWORD\"/g /var/www/html/results/telemetry_settings.php
   # set mysql database info
