@@ -219,7 +219,7 @@ class IpCIDR {
     * @param integer $cidrLength CIDR前缀长度
     * @return boolean
     */
-    function isIpInRange($ip) {
+    public function isIpInRange($ip) {
         $cidrLength = $this->prefixLength;
         $cidrPrefix = $this->prefix;
         if ($this->type == self::$IPv4_FLAG) {
@@ -240,10 +240,31 @@ class IpCIDR {
             throw new Exception('invalid ip ');
         }
     }
+
+    /**
+     * 获得该CIDR前缀长度
+     *
+     * @return integer 
+     */
+    public function getPrefixLength() {
+        return $this->prefixLength;
+    }
+
+    /**
+     * 获得该CIDR所表示的IP范围内的IP数量是2的几次幂
+     *
+     * @return integer
+     */
+    public function getIpNumsWithBitLength() {
+        if ($this->type == self::$IPv4_FLAG) {
+            return 32 - $this->getPrefixLength();
+        }
+        return 128 - $this->getPrefixLength();
+    }
 }
 
 // IpCIDR class test
-// $ipv4 = new IpCIDR('10.10.1.32/9');
+// $ipv4 = new IpCIDR('10.10.1.32/1');
 // var_dump($ipv4->getRange());
 // var_dump($ipv4->isIpInRange('10.10.127.32'));
 // 
@@ -319,6 +340,9 @@ function getCIDRListFromMysql() {
     include(__DIR__ . '/../results/telemetry_settings.php');
     $cidrRuleList = [];
     $conn = new mysqli($MySql_hostname, $MySql_username, $MySql_password, $MySql_databasename, $MySql_port);
+    // 由于一般CIDR网段不会有交集，但是会有完全包含的情况
+    // 但是可能会有完全包含的关系
+    // 因此需要调整优先级使得先过滤范围较小的CIDR
     $p = $conn->prepare('SELECT `cidr`, position, accessmethod, isp, ispinfo FROM  speedtest_cidrinfo ORDER BY `index` DESC, id DESC');
     $p->execute();
     $p->bind_result($cidr, $position, $accessMethod, $isp, $ispInfo);

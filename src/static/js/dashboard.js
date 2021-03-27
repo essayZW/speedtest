@@ -226,10 +226,6 @@ let config = {
           sidePagination: "server",
           columns: [
             {
-              field: 'id',
-              title: 'id'
-            },
-            {
               field: 'unumber',
               title: '学号'
             },
@@ -266,8 +262,20 @@ let config = {
               title: '抖动 ms'
             },
             {
-              field : 'time',
-              title : '测速时间'
+              field: 'time',
+              title: '测速时间'
+            },
+            {
+              field: 'serverName',
+              title: '测速节点名称'
+            },
+            {
+              title: '操作',
+              formatter: (value, row, index) => {
+                return `
+                <button class="btn btn-danger table-delete" data-api="/api/speedLog.php" data-tableid="historyDataTable" data-index="${index}">删除</button>
+                `;
+              }
             }
           ],
           queryParams : (params) => {
@@ -418,7 +426,127 @@ let config = {
         pageTitle: '测速节点设置'
       },
       callback: () => {
-
+        const tableId = 'testPointsTable';
+        $(`#${tableId}`).bootstrapTable({
+          url: '/api/testpoints.php?operation=select',
+          sidePagination: true,
+          pageSize: 10,
+          pageList: [10, 25, 50, 100],
+          showRefresh: true,
+          pagination: true,
+          buttonsToolbar: '#testPointsTableToolArea',
+          uniqueId: 'id',
+          columns: [
+            {
+              field: 'name',
+              title: '名称',
+              editable: {
+                type: 'text',
+                title: '新的节点名称',
+                validate: (v) => {
+                  if (!v.length) return '节点名称不能为空';
+                }
+              }
+            },
+            {
+              field: 'server',
+              title: '地址',
+              editable: {
+                type: 'text',
+                title: '新的节点地址',
+                validate: (v) => {
+                  if (!/^https?:\/\/.+$/.test(v)) {
+                    return '节点地址必须以http(s)://开头';
+                  }
+                }
+              }
+            },
+            {
+              field: 'port',
+              title: '端口',
+              editable: {
+                type: 'text',
+                title: '新的端口号(0~65535)',
+                validate: (v) => {
+                  if (!/^\d+$/.test(v)) {
+                    return '端口号必须是整数';
+                  }
+                  v = parseInt(v);
+                  if (v < 0 || v > 65535) {
+                    return '端口号范围(0~65535)';
+                  }
+                }
+              }
+            },
+            {
+              field: 'dlURL',
+              title: '下载接口地址',
+              editable: {
+                type: 'text',
+                title: '测速节点下载测试接口地址',
+                validate: (v) => {
+                  if (v.charAt(0) != '/') {
+                    return '必须以 / 开头';
+                  }
+                }
+              }
+            },
+            {
+              field: 'ulURL',
+              title: '上传接口地址',
+              editable: {
+                type: 'text',
+                title: '测速节点上传测试接口地址',
+                validate: (v) => {
+                  if (v.charAt(0) != '/') {
+                    return '必须以 / 开头';
+                  }
+                }
+              }
+            },
+            {
+              field: 'pingURL',
+              title: 'ping测试接口地址',
+              editable: {
+                type: 'text',
+                title: '测速节点ping测试接口地址',
+                validate: (v) => {
+                  if (v.charAt(0) != '/') {
+                    return '必须以 / 开头';
+                  }
+                }
+              }
+            },
+            {
+              field: 'getIpURL',
+              title: 'ip信息接口地址',
+              editable: {
+                type: 'text',
+                title: '测速节点ip信息测试接口地址',
+                validate: (v) => {
+                  if (v.charAt(0) != '/') {
+                    return '必须以 / 开头';
+                  }
+                }
+              }
+            },
+            {
+              title: '操作',
+              formatter: (value, row, index) => {
+                return `
+                <button class="btn btn-success table-save" data-api="/api/testpoints.php" data-tableid="${tableId}" data-index="${index}">保存</button>
+                <button class="btn btn-danger table-delete" data-api="/api/testpoints.php" data-tableid="${tableId}" data-index="${index}">删除</button>
+                <button class="btn btn-primary table-restore" data-api="/api/testpoints.php" data-tableid="${tableId}" data-index="${index}">恢复</button>
+                `;
+              }
+            }
+          ],
+          responseHandler: (rep) => {
+            rep = rep.data;
+            window.editableTableData[tableId] = JSON.parse(JSON.stringify(rep));
+            return rep;
+          }
+        });
       }
     },
     {
@@ -699,7 +827,9 @@ butt.addEventListener('click', (e) => {
 
 // 由于表格编辑按钮后创建
 // 因此需要通过事件委托添加点击事件
-// 委托事件到.table-event-handler元素上
+// 委托事件到.table-event-handler元素上，即表格元素
+
+// 负责表格的某一行的修改事件
 eventDelegation('.table-event-handler', 'button.table-save', 'click', function(e, _this) {
   let targetId = _this.dataset.tableid;
   let tableIndex = _this.dataset.index;
@@ -745,7 +875,11 @@ eventDelegation('.table-event-handler', 'button.table-save', 'click', function(e
   });
 });
 
+// 删除表格中某一行按钮点击事件处理
 eventDelegation('.table-event-handler', 'button.table-delete', 'click', (e, _this) => {
+  if (!confirm('确定删除该条信息?')) {
+    return;
+  }
   let targetId = _this.dataset.tableid;
   let tableIndex = _this.dataset.index;
   let currentTableData = $(`#${targetId}`).bootstrapTable('getData', false);
@@ -774,6 +908,7 @@ eventDelegation('.table-event-handler', 'button.table-delete', 'click', (e, _thi
   });
 });
 
+// 重置表格中某一行按钮点击事件处理
 eventDelegation('.table-event-handler', 'button.table-restore', 'click', (e, _this) => {
   let targetId = _this.dataset.tableid;
   let tableIndex = _this.dataset.index;
@@ -819,7 +954,7 @@ cidrAddbutton.addEventListener('click', () => {
       $('#cidrModal').modal('hide');
     }
     else {
-      alertModal('修改失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
+      alertModal('添加失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
     }
   }).catch((error) => {
     console.log(error);
@@ -827,6 +962,70 @@ cidrAddbutton.addEventListener('click', () => {
   })
 });
 
+// 添加测速节点信息Modal显示按钮
+let testPointModalShowButton = document.querySelector('#showTestPointsInfoModal');
+testPointModalShowButton.addEventListener('click', () => {
+  let input = document.querySelector('#testPointModal input[name=name]');
+  input.value = '';
+  input = document.querySelector('#testPointModal input[name=server]');
+  input.value = '';
+  $('#testPointModal').modal('show');
+});
+let testPointAddButton = document.querySelector('#addTestPointsInfo');
+testPointAddButton.addEventListener('click', () => {
+  let allInputs = document.querySelectorAll('#testPointModal input');
+  let postParams = {};
+  for (let i = 0; i < allInputs.length; i ++) {
+    let current = allInputs[i];
+    postParams[current.getAttribute('name')] = current.value;
+  }
+  
+  if (!postParams.server) {
+    alertModal('添加失败', '测速节点地址不能为空');
+    return;
+  }
+  if (!postParams.name) {
+    alertModal('添加失败', '测速节点名称不能为空');
+    return;
+  }
+
+  if (! /^(http:\/\/|https:\/\/).+$/.test(postParams.server)) {
+    alertModal('添加失败', '测速节点地址必须以http:// 或者 https://开头');
+    return;
+  }
+  if (postParams.ulURL.charAt(0) != '/' || postParams.dlURL.charAt(0) != '/'
+    || postParams.pingURL.charAt(0) != '/' || postParams.getIpURL.charAt(0) != '/')
+  {
+    alertModal('添加失败', '接口地址必须以 / 开头');
+    return;
+  }
+
+  let urlPostParmas = new URLSearchParams();
+  for (let key in postParams) {
+    urlPostParmas.append(key, postParams[key]);
+  }
+  axios.post('/api/testpoints.php', urlPostParmas, {
+    params: {
+      operation: 'insert'
+    },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  }).then((rep) => {
+    let repData = rep.data;
+    if (repData.status) {
+      $('#testPointsTable').bootstrapTable('refresh');
+      $('#testPointModal').modal('hide');
+    }
+    else {
+      alertModal('添加失败', typeof repData.info == 'object' ? repData.info.message : repData.info);
+    }
+  }).catch((error) => {
+    console.error(error);
+    alertModal('添加失败', '添加失败，请稍后重试');
+  });
+});
+// 帕累托图区间划分按钮被点击时重新请求数据绘图
 let allPretoDivisionButt = document.querySelectorAll('.pareto-division-butt');
 for (let i = 0; i < allPretoDivisionButt.length; i ++) {
   allPretoDivisionButt[i].addEventListener('click', () => {

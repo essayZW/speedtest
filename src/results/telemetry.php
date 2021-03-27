@@ -23,7 +23,12 @@ $ul = ($_POST["ul"]);
 $ping = ($_POST["ping"]);
 $jitter = ($_POST["jitter"]);
 $log = ($_POST["log"]);
-
+if (isset($_POST['server'])) {
+    $testpointid = (int) $_POST['server'];
+}
+else {
+    $testpointid = null;
+}
 if ($redact_ip_addresses) {
     $ip = "0.0.0.0";
     $ipv4_regex = '/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/';
@@ -48,8 +53,8 @@ $p->execute();
 $p->bind_result($userid);
 $p->fetch();
 $p->close();
-$stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,userid) VALUES (?,?,?,?,?,?,?,?,?,?,?)") or die("2");
-$stmt->bind_param("sssssssssss", $ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $userid) or die("3");
+$stmt = $conn->prepare("INSERT INTO speedtest_infos (ip,ispinfo,extra,ua,lang,dl,ul,ping,jitter,log,userid,testpointid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)") or die("2");
+$stmt->bind_param("sssssssssssi", $ip, $ispinfo, $extra, $ua, $lang, $dl, $ul, $ping, $jitter, $log, $userid,$testpointid) or die("3");
 $stmt->execute() or die("4");
 $stmt->close() or die("5");
 $id = $conn->insert_id;
