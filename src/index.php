@@ -48,7 +48,7 @@ require_once('./utils/validation.php');
                 </select>
             </div>
         </div>
-        <?php if (getenv("TELEMETRY") != "true") { ?>
+        <?php if (getenv("TELEMETRY") == "true") { ?>
             <a class="privacy" href="#" onclick="I('privacyPolicy').style.display=''">Privacy</a>
         <?php } ?>
         <div id="test">
@@ -91,7 +91,7 @@ require_once('./utils/validation.php');
         </div>
         <a href="#" onclick="I('netCommonsense').style.display='';">网速知识</a>
         <a href="/results/history.php" target="_blank">测速历史</a>
-        <a href="https://github.com/librespeed/speedtest">Source code</a>
+        <a href="https://github.com/essayZW/speedtest">Source code</a>
     </div>
     <div id="privacyPolicy" style="display:none">
         <h2>Privacy Policy</h2>

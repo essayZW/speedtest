@@ -141,8 +141,8 @@ axios.get('/api/testpoints.php', {
   let serverLists = rep.data.data;
   if (serverLists == undefined || serverLists.length == 0) {
     // default test point
-    serverLists = [
-      {
+    serverLists = [{
+      'id': null,
       'name': window.defaultServerInfo.name,
       'server': window.location.protocol + '//' + window.location.hostname,
       'port': window.location.port,
@@ -150,8 +150,7 @@ axios.get('/api/testpoints.php', {
       'ulURL': '/backend/empty.php',
       'pingURL': '/backend/empty.php',
       'getIpURL': '/backend/getIP.php'
-      }
-    ];
+    }];
   }
   s.addTestPoints(serverLists);
   // default no auto server select
