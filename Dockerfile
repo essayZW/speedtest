@@ -16,8 +16,7 @@ RUN mkdir -p /speedtest/
 
 # Copy sources
 COPY src/ /speedtest
-COPY docker/servers.json /servers.json
-
+COPY docker/backend.php /speedtest
 COPY docker/entrypoint.sh /
 
 # Prepare environment variabiles defaults

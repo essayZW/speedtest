@@ -9,10 +9,18 @@ rm -rf /var/www/html/*
 # Copy web files
 cp -R /speedtest/* /var/www/html/
 
+# set backend mode
+if [ "$MODE" == "backend" ]; then
+  cp -r /var/www/html/backend/* /var/www/html/
+  cp /var/www/html/backend.php /var/www/html/index.php
+  rm -rf /var/www/html/dashboard
+fi
+rm -rf /var/www/html/backend.php
+
 sed -i s/\$IPINFO_APIKEY=\"\"/\$IPINFO_APIKEY=\"$IPINFO_APIKEY\"/g /var/www/html/backend/getIP_ipInfo_apikey.php
 
-# Apply Telemetry settings when running in standalone or frontend mode and telemetry is enabled
-if [[ "$TELEMETRY" == "true" && ( "$MODE" == "frontend" || "$MODE" == "standalone" ) ]]; then
+# Apply Telemetry settings when running in frontend mode and telemetry is enabled
+if [[ "$TELEMETRY" == "true" && "$MODE" == "frontend" ]]; then
 
   sed -i s/\$stats_password=\".*\"/\$stats_password=\"$PASSWORD\"/g /var/www/html/results/telemetry_settings.php
   # set mysql database info
