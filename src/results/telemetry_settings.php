@@ -8,7 +8,7 @@ $redact_ip_addresses=false; //if set to true, IP addresses will be redacted from
 // Mysql settings
 $MySql_username="root";
 $MySql_password="beihai";
-$MySql_hostname="127.0.0.1";
+$MySql_hostname="172.17.0.2";
 $MySql_databasename="speedtest";
 $MySql_port="3306";
 

@@ -197,10 +197,10 @@ function validateParams() {
     $server = get($_POST, 'server');
     // default server port is 80
     $port = (int) get($_POST, 'port', 80);
-    $dlURL = get($_POST, 'dlURL', '/garbage.php');
-    $ulURL = get($_POST, 'ulURL', '/empty.php');
-    $pingURL = get($_POST, 'pingURL', '/empty.php');
-    $getIpURL = get($_POST, 'getIpURL', '/getIP.php');
+    $dlURL = get($_POST, 'dlURL', '/backend/garbage.php');
+    $ulURL = get($_POST, 'ulURL', '/backend/empty.php');
+    $pingURL = get($_POST, 'pingURL', '/backend/empty.php');
+    $getIpURL = get($_POST, 'getIpURL', '/backend/getIP.php');
     $rep = [
         'status' => false,
         'info' => [

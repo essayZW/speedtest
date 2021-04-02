@@ -48,8 +48,10 @@ function format(d) {
 
 //UI CODE
 var uiData = null;
-
+// 当其为true时意味着测速节点信息已经加载好，可以开启测速
+var pointReady = false;
 function startStop() {
+  if (!pointReady) return;
   if (s.getState() == 3) {
     //speedtest is running, abort
     s.abort();
@@ -163,6 +165,9 @@ axios.get('/api/testpoints.php', {
     option.value = i;
     serverListSelector.appendChild(option);
   }
+  pointReady = true;
+  I("startStopBtn").className = "";
+  I("startStopBtn").title= "";
   serverListSelector.addEventListener('change', function() {
     let index = this.selectedOptions[0].value;
     index = parseInt(index);

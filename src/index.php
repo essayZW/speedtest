@@ -40,7 +40,7 @@ require_once('./utils/validation.php');
     </div>
     <h1><?= getenv('TITLE') ?: 'LibreSpeed Example' ?></h1>
     <div id="testWrapper">
-        <div id="startStopBtn" onclick="startStop()"></div><br />
+        <div id="startStopBtn" class="forbidden" title="测速节点信息加载中" onclick="startStop()"></div><br />
         <div id="serverSelectArea">
             <div>
                 <label for="serverList">Server:</label>
