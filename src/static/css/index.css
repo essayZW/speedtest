@@ -32,6 +32,12 @@ h1{
     border-color:#FF6060;
     color:#FFFFFF;
 }
+#startStopBtn.forbidden {
+    background-color: gray;
+    color: white;
+    border-color: gray;
+    cursor: not-allowed;
+}
 #startStopBtn:before{
     content:"Start";
 }

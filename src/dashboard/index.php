@@ -834,19 +834,19 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                         </div>
                         <div class="form-group">
                             <label for="pointDlURLInput">测速节点下载接口地址:</label>
-                            <input type="text" class="form-control" name="dlURL" id="pointDlURLInput" placeholder="必须以 / 开头" value="/garbage.php">
+                            <input type="text" class="form-control" name="dlURL" id="pointDlURLInput" placeholder="必须以 / 开头" value="/backend/garbage.php">
                         </div>
                         <div class="form-group">
                             <label for="pointUlURLInput">测速节点上传接口地址:</label>
-                            <input type="text" class="form-control" name="ulURL" id="pointUlURLInput" placeholder="必须以 / 开头" value="/empty.php">
+                            <input type="text" class="form-control" name="ulURL" id="pointUlURLInput" placeholder="必须以 / 开头" value="/backend/empty.php">
                         </div>
                         <div class="form-group">
                             <label for="pointPingURLInput">测速节点ping测试接口地址:</label>
-                            <input type="text" class="form-control" name="pingURL" id="pointPingURLInput" placeholder="必须以 / 开头" value="/empty.php">
+                            <input type="text" class="form-control" name="pingURL" id="pointPingURLInput" placeholder="必须以 / 开头" value="/backend/empty.php">
                         </div>
                         <div class="form-group">
                             <label for="pointIpURLInput">测速节点IP信息获取接口地址:</label>
-                            <input type="text" class="form-control" name="getIpURL" id="pointIpURLInput" placeholder="必须以 / 开头" value="/getIP.php">
+                            <input type="text" class="form-control" name="getIpURL" id="pointIpURLInput" placeholder="必须以 / 开头" value="/backend/getIP.php">
                         </div>
                     </form>
                 </div>
