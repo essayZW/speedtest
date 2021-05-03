@@ -24,7 +24,7 @@ CREATE TABLE `speedtest_cidrinfo` (
   `ispinfo` text,
   `index` int DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -49,8 +49,11 @@ CREATE TABLE `speedtest_users` (
   `name` varchar(50) NOT NULL,
   `number` varchar(15) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+LOCK TABLES `speedtest_users` WRITE;
+INSERT INTO `speedtest_users` (`name`, `number`)VALUES ('游客', '1234567890');
+UNLOCK TABLES;
 --
 -- Table structure for table `speedtest_infos`
 --
@@ -73,10 +76,8 @@ CREATE TABLE `speedtest_infos` (
   `log` longtext,
   `userid` int DEFAULT NULL,
   `testpointid` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `infoid_userid_idx` (`userid`),
-  CONSTRAINT `infoid_userid` FOREIGN KEY (`userid`) REFERENCES `speedtest_users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 
@@ -98,5 +99,5 @@ CREATE TABLE `speedtest_testpoints` (
   `getIpURL` varchar(128) DEFAULT NULL,
   `status` tinyint DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;

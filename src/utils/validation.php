@@ -90,8 +90,11 @@ define('__PORTAL_LOGIN_URL__', 'https://portal.buct.edu.cn/cas/login');
 
 require_once(__DIR__ . '/../results/telemetry_settings.php');
 if(!PermissionValidator::check()) {
-    if(!isset($_GET['ticket'])) {
+    if(!isset($_GET['ticket']) && !$needLogin) {
         // 未登录，前往统一认证界面
+        $__USER_NUMBER__ = '1234567890';
+    }
+    else if ($needLogin) {
         header("Location: ". __PORTAL_LOGIN_URL__ . '?service=' .urlencode(getRequestUrl()));
     }
     else {

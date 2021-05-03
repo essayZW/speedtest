@@ -3,7 +3,6 @@ require_once('./utils/validation.php');
 ?>
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
     <meta charset="UTF-8" />
@@ -36,7 +35,13 @@ require_once('./utils/validation.php');
 
 <body>
     <div class="header">
+        <?php if ($__USER_NAME__) {?>
         <div class="name">欢迎你: <?php echo $__USER_NAME__; ?></div>
+        <?php }
+              else {
+        ?>
+        <div class="name"><a href="./login.php">游客，请登录</a></div>
+        <?php } ?>
     </div>
     <h1><?= getenv('TITLE') ?: 'LibreSpeed Example' ?></h1>
     <div id="testWrapper">

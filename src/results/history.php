@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__ .  '/../utils/validation.php');
 require_once('./telemetry_settings.php');
 require_once('./idObfuscation.php');
+require_once(__DIR__ . '/../utils/validation.php');
 require_once(__DIR__ . '/../utils/cidr.php');
 error_reporting(0);
 ?>
@@ -58,7 +58,13 @@ error_reporting(0);
 
 <body>
     <div class="header">
+        <?php if ($__USER_NAME__) {?>
         <div class="name">欢迎你: <?php echo $__USER_NAME__; ?></div>
+        <?php }
+              else {
+        ?>
+        <div class="name"><a href="./login.php">游客，请登录</a></div>
+        <?php } ?>
     </div>
     <h1>测速历史-<?php echo $__USER_NUMBER__; ?></h1>
     <?php
