@@ -85,8 +85,8 @@ function is_https() {
 }
 
 
-define('__PORTAL_VALIDATE_URL__', 'https://portal.buct.edu.cn/cas/serviceValidate');
-define('__PORTAL_LOGIN_URL__', 'https://portal.buct.edu.cn/cas/login');
+define('__PORTAL_VALIDATE_URL__', '/defaultCas.php');
+define('__PORTAL_LOGIN_URL__', '/defaultCas.php');
 
 require_once(__DIR__ . '/../results/telemetry_settings.php');
 if(!PermissionValidator::check()) {
