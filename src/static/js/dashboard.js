@@ -561,6 +561,17 @@ let config = {
         let butt = document.querySelector('#paretoinfoChartButt');
         butt.click();
       }
+    },
+    {
+      path: '/chart/speedrank',
+      name: 'speedRank',
+      pageHeader: {
+        info: '各个楼宇的测速统计排行图表',
+        title: '各楼宇测速统计',
+        pageTitle: '各楼宇测速统计'
+      },
+      callback: () => {
+      }
     }
   ]
 }

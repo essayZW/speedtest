@@ -91,6 +91,7 @@ require_once('./utils/validation.php');
         </div>
         <a href="#" onclick="I('netCommonsense').style.display='';">网速知识</a>
         <a href="/results/history.php" target="_blank">测速历史</a>
+        <a href="/results/speedRank.php" target="_blank">各楼宇网速排行</a>
         <a href="https://github.com/essayZW/speedtest">Source code</a>
     </div>
     <div id="privacyPolicy" style="display:none">
