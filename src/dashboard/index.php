@@ -88,6 +88,7 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                             <li><a href="#/chart/line"><i class="fa fa-circle-o"></i>测速情况变化曲线图</a></li>
                             <li><a href="#/chart/pie"><i class="fa fa-circle-o"></i>各项数据占比饼状图</a></li>
                             <li><a href="#/chart/pareto"><i class="fa fa-circle-o"></i>各项数据帕累托图</a></li>
+                            <li><a href="#/chart/speedrank"><i class="fa fa-circle-o"></i>各楼宇网速排行</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -760,7 +761,13 @@ if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
                     </div>
                 </div>
                 <!-- 测速数据帕累托图页面结束 -->
-
+                <!-- 各个楼宇测速排行页面开始 -->
+                <div class="page" data-hash="/chart/speedrank">
+                    <div class="row speedrank">
+                        <iframe class="col-lg-10" src="/results/speedRank.php" frameborder="0"></iframe>
+                    </div>    
+                </div>
+                <!-- 各个楼宇测速排行页面结束 -->
             </div>
         </div>
         <div class="main-footer">
