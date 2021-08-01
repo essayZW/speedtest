@@ -71,3 +71,8 @@
     max-width: 300px;
     margin-left: 20px;
 }
+
+.speedrank > iframe {
+    height: 650px;
+    width: 100%;
+}
