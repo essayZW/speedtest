@@ -347,6 +347,7 @@ let config = {
           pagination: true,
           buttonsToolbar: '#cidrTableToolArea',
           uniqueId: 'id',
+          sidePagination: "server",
           columns: [
             {
               field: 'cidr',
@@ -404,6 +405,8 @@ let config = {
           ],
           responseHandler: (res) => {
             // 将null转化为字符串 Unknown
+            let total = res.total;
+            res = res.rows;
             for (let i = 0; i < res.length; i ++) {
               for (let key in res[i]) {
                 if (res[i][key] == null || res[i][key] == '') {
@@ -412,7 +415,16 @@ let config = {
               }
             }
             window.editableTableData[TableId] = JSON.parse(JSON.stringify(res));
-            return res;
+            return {
+              total: total,
+              rows: res
+            };
+          },
+          queryParams: (params) => {
+            return {
+              start: params.offset,
+              length: params.limit
+            }
           }
         });
       }
