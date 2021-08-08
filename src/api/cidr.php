@@ -31,7 +31,12 @@ $operation = get($_GET, 'operation');
 
 switch ($operation) {
     case 'select':
-        $p = $conn->prepare('SELECT id, `cidr`, position, accessMethod, isp, ispinfo FROM speedtest_cidrinfo');
+        $start = get($_GET, 'start');
+        if ($start == null) $start = 0;
+        $length = get($_GET, 'length');
+        if ($length == null) $length = 50;
+        $p = $conn->prepare('SELECT id, `cidr`, position, accessMethod, isp, ispinfo FROM speedtest_cidrinfo LIMIT ?, ?');
+        $p->bind_param('ii', $start, $length);
         $p->execute();
         $p->bind_result($id, $cidr, $position, $accessmethod, $isp, $ispinfo);
         $cidrList = [];
@@ -45,7 +50,15 @@ switch ($operation) {
                 'ispinfo' => $ispinfo
             ];
         }
-        echo json_encode($cidrList);
+        $p->close();
+        $p = $conn->prepare("SELECT COUNT(*) FROM speedtest_cidrinfo");
+        $p->execute();
+        $p->bind_result($allNum);
+        $p->fetch();
+        echo json_encode([
+            'total' => $allNum,
+            'rows' => $cidrList
+        ]);
         break;
 
     case 'delete':

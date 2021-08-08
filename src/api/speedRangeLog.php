@@ -80,7 +80,7 @@ switch ($stepFlag) {
 }
 $p = $conn->prepare("SELECT ul, dl, ping, jitter, `number`, `timestamp` FROM speedtest_infos, speedtest_users 
                     WHERE speedtest_users.id = speedtest_infos.userid
-                    AND `timestamp` BETWEEN ? AND ?");
+                    AND `timestamp` BETWEEN ? AND ? ORDER BY speedtest_infos.`id` ASC");
 $p->bind_param('ss', $startTime, $endTime);
 $p->execute();
 $p->store_result();
@@ -90,11 +90,13 @@ $currentTime = strtotime($startTime);
 $end = strtotime($endTime);
 $repData = [];
 $index = 0;
+// 用来存储有哪几个用户在这一段时间进行了测速
 $allUserList = [];
 if($step != -1) {
     while($p->fetch()) {
         $timeNowRow = strtotime($timestamp);
         $allUserList[$unumber] = true;
+        // 这个循环用来初始化第一条数据所处的时间前面没有数据的时间段
         while($timeNowRow >= $currentTime + $step) {
             if(!isset($repData[$index])) {
                 $repData[$index] = [
